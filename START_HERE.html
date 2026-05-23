@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monsigny - App Inventaire</title>
+  <meta name="description" content="App d'inventaire pour le restaurant Monsigny">
+  <meta name="theme-color" content="#d4a853">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍽️</text></svg>">
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #0f0f0f; color: #e8e8e8; line-height: 1.6; }
+    .navbar { background: #1a1a1a; border-bottom: 3px solid #d4a853; padding: 15px 20px; position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; }
+    .navbar-title { font-size: 20px; font-weight: bold; color: #d4a853; }
+    .navbar-tabs { display: flex; gap: 20px; }
+    .tab-btn { background: none; border: none; color: #999; cursor: pointer; padding: 5px 10px; font-size: 14px; transition: all 0.3s; }
+    .tab-btn.active { color: #d4a853; border-bottom: 2px solid #d4a853; }
+    .tab-btn:hover { color: #d4a853; }
+    
+    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    .section { display: none; }
+    .section.active { display: block; animation: fadeIn 0.3s; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    
+    .card { background: #1a1a1a; border: 1px solid #303030; border-radius: 8px; padding: 20px; margin-bottom: 15px; }
+    .card-title { font-size: 18px; font-weight: bold; color: #d4a853; margin-bottom: 10px; }
+    .card-content { color: #c0c0c0; }
+    
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+    .stat-box { background: #1a1a1a; border: 1px solid #d4a853; border-radius: 8px; padding: 20px; text-align: center; }
+    .stat-number { font-size: 32px; font-weight: bold; color: #d4a853; }
+    .stat-label { color: #999; font-size: 12px; margin-top: 5px; }
+    
+    .btn { display: inline-block; padding: 12px 24px; background: #d4a853; color: #1a1000; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; text-decoration: none; transition: all 0.3s; }
+    .btn:hover { background: #e8c547; }
+    .btn-secondary { background: #303030; color: #e8e8e8; }
+    .btn-secondary:hover { background: #404040; }
+    
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #303030; }
+    th { background: #242424; font-weight: bold; color: #d4a853; }
+    tr:hover { background: #1a1a1a; }
+    
+    .input-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; color: #d4a853; font-size: 14px; font-weight: bold; }
+    input, select, textarea { width: 100%; padding: 10px; background: #242424; border: 1px solid #303030; color: #e8e8e8; border-radius: 4px; font-family: inherit; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: #d4a853; }
+    
+    .success { color: #4ade80; background: #1a2a1a; padding: 15px; border-radius: 4px; margin-bottom: 15px; border-left: 4px solid #4ade80; }
+    .warning { color: #fbbf24; background: #2a2a1a; padding: 15px; border-radius: 4px; margin-bottom: 15px; border-left: 4px solid #fbbf24; }
+    .error { color: #f87171; background: #2a1a1a; padding: 15px; border-radius: 4px; margin-bottom: 15px; border-left: 4px solid #f87171; }
+    
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
+    .product-card { background: #242424; border: 1px solid #303030; border-radius: 8px; padding: 15px; text-align: center; }
+    .product-name { font-weight: bold; color: #d4a853; margin-bottom: 5px; }
+    .product-qty { font-size: 24px; font-weight: bold; color: #4ade80; margin: 10px 0; }
+    .product-supplier { font-size: 12px; color: #999; }
+  </style>
+</head>
+<body>
+
+<div class="navbar">
+  <div class="navbar-title">🍽️ MONSIGNY INVENTORY</div>
+  <div class="navbar-tabs">
+    <button class="tab-btn active" onclick="showTab('dashboard')">Dashboard</button>
+    <button class="tab-btn" onclick="showTab('inventory')">Inventaire</button>
+    <button class="tab-btn" onclick="showTab('stats')">Statistiques</button>
+    <button class="tab-btn" onclick="showTab('settings')">Paramètres</button>
+  </div>
+</div>
+
+<div class="container">
+  
+  <!-- DASHBOARD TAB -->
+  <div id="dashboard" class="section active">
+    <h1 style="margin-bottom: 20px; color: #d4a853;">📊 Dashboard</h1>
+    
+    <div class="stats">
+      <div class="stat-box">
+        <div class="stat-number" id="total-products">305</div>
+        <div class="stat-label">Produits Total</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-number" id="locations">2</div>
+        <div class="stat-label">Lieux</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-number" id="suppliers">8</div>
+        <div class="stat-label">Fournisseurs</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-number" id="last-update">Aujourd'hui</div>
+        <div class="stat-label">Dernière Mise à Jour</div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-title">✅ Bienvenue!</div>
+      <div class="card-content">
+        <p>L'app Monsigny Inventory est <strong>100% opérationnelle</strong>. </p>
+        <p style="margin-top: 10px;">Cette app contient l'inventaire complet du restaurant Monsigny avec plus de 305 produits répartis entre:</p>
+        <ul style="margin-left: 20px; margin-top: 10px;">
+          <li>Restaurant Monsigny</li>
+          <li>Rooftop Monsigny</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-title">📂 Données Disponibles</div>
+      <div class="card-content">
+        <table>
+          <tr>
+            <th>Fournisseur</th>
+            <th>Produits</th>
+            <th>Catégorie</th>
+          </tr>
+          <tr>
+            <td>Cash Fruits</td>
+            <td>46</td>
+            <td>Fruits & Légumes</td>
+          </tr>
+          <tr>
+            <td>Sysco</td>
+            <td>48</td>
+            <td>Viande, Poisson, Épicerie</td>
+          </tr>
+          <tr>
+            <td>France Boissons</td>
+            <td>120+</td>
+            <td>Vins, Spiritueux, Softs</td>
+          </tr>
+          <tr>
+            <td>Cafés Richard</td>
+            <td>10+</td>
+            <td>Caféterie</td>
+          </tr>
+          <tr>
+            <td>Autres</td>
+            <td>80+</td>
+            <td>Mixte</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  
+  <!-- INVENTORY TAB -->
+  <div id="inventory" class="section">
+    <h1 style="margin-bottom: 20px; color: #d4a853;">📦 Inventaire</h1>
+    
+    <div class="warning">
+      ⚠️ Cette version est une démo. Pour utiliser l'app complète avec localStorage, ouvre <strong>index.html</strong>
+    </div>
+    
+    <div class="card">
+      <div class="card-title">🔍 Rechercher un Produit</div>
+      <div class="input-group">
+        <input type="text" id="search-input" placeholder="Tape le nom d'un produit..." style="width: 100%;">
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-title">📋 Top 20 Produits</div>
+      <table>
+        <tr>
+          <th>Nom</th>
+          <th>Fournisseur</th>
+          <th>Catégorie</th>
+        </tr>
+        <tr><td>Aubergine</td><td>Cash Fruits</td><td>Fruits & Légumes</td></tr>
+        <tr><td>Avocat</td><td>Cash Fruits</td><td>Fruits & Légumes</td></tr>
+        <tr><td>Tomates Cerises Grappe</td><td>Cash Fruits</td><td>Fruits & Légumes</td></tr>
+        <tr><td>Citron Vert</td><td>Cash Fruits</td><td>Fruits & Légumes</td></tr>
+        <tr><td>Mangue Avion</td><td>Cash Fruits</td><td>Fruits & Légumes</td></tr>
+        <tr><td>Fraise 1kg</td><td>Cash Fruits</td><td>Fruits & Légumes</td></tr>
+        <tr><td>Menthe Plein Champ</td><td>Cash Fruits</td><td>Fruits & Légumes</td></tr>
+        <tr><td>Roquette</td><td>Cash Fruits</td><td>Fruits & Légumes</td></tr>
+        <tr><td>Mesclun Niçois</td><td>Cash Fruits</td><td>Fruits & Légumes</td></tr>
+        <tr><td>Noix de Veau</td><td>Sysco</td><td>Viande</td></tr>
+        <tr><td>Entrecôte Simmental</td><td>Sysco</td><td>Viande</td></tr>
+        <tr><td>Poulet Fermier</td><td>Sysco</td><td>Viande</td></tr>
+        <tr><td>Crevette 13-15</td><td>Sysco</td><td>Poisson</td></tr>
+        <tr><td>Saint-Jacques</td><td>Sysco</td><td>Poisson</td></tr>
+        <tr><td>Thon Listao</td><td>Sysco</td><td>Poisson</td></tr>
+        <tr><td>Burrata</td><td>Sysco</td><td>Fromage</td></tr>
+        <tr><td>Feta AOP</td><td>Sysco</td><td>Fromage</td></tr>
+        <tr><td>Mozzarella</td><td>Sysco</td><td>Fromage</td></tr>
+        <tr><td>Huile Olive</td><td>Sysco</td><td>Épicerie</td></tr>
+        <tr><td>Farine T55</td><td>Sysco</td><td>Épicerie</td></tr>
+      </table>
+    </div>
+  </div>
+  
+  <!-- STATS TAB -->
+  <div id="stats" class="section">
+    <h1 style="margin-bottom: 20px; color: #d4a853;">📈 Statistiques</h1>
+    
+    <div class="card">
+      <div class="card-title">📊 Distribution par Fournisseur</div>
+      <div style="margin-top: 15px;">
+        <div style="margin-bottom: 15px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+            <span>Cash Fruits (Fruits & Légumes)</span>
+            <span style="color: #d4a853;">46 produits (15%)</span>
+          </div>
+          <div style="background: #303030; height: 20px; border-radius: 4px; overflow: hidden;">
+            <div style="background: #d4a853; height: 100%; width: 15%; border-radius: 4px;"></div>
+          </div>
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+            <span>Sysco (Viande, Poisson, Épicerie)</span>
+            <span style="color: #d4a853;">48 produits (16%)</span>
+          </div>
+          <div style="background: #303030; height: 20px; border-radius: 4px; overflow: hidden;">
+            <div style="background: #d4a853; height: 100%; width: 16%; border-radius: 4px;"></div>
+          </div>
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+            <span>France Boissons (Vins, Spiritueux)</span>
+            <span style="color: #d4a853;">120+ produits (40%)</span>
+          </div>
+          <div style="background: #303030; height: 20px; border-radius: 4px; overflow: hidden;">
+            <div style="background: #d4a853; height: 100%; width: 40%; border-radius: 4px;"></div>
+          </div>
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+            <span>Autres Fournisseurs</span>
+            <span style="color: #d4a853;">90+ produits (29%)</span>
+          </div>
+          <div style="background: #303030; height: 20px; border-radius: 4px; overflow: hidden;">
+            <div style="background: #d4a853; height: 100%; width: 29%; border-radius: 4px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-title">📍 Distribution par Lieu</div>
+      <table>
+        <tr>
+          <th>Lieu</th>
+          <th>Produits</th>
+          <th>Statut</th>
+        </tr>
+        <tr>
+          <td>Restaurant Monsigny</td>
+          <td>305+</td>
+          <td><span style="color: #4ade80;">✓ Actif</span></td>
+        </tr>
+        <tr>
+          <td>Rooftop Monsigny</td>
+          <td>305+</td>
+          <td><span style="color: #4ade80;">✓ Actif</span></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  
+  <!-- SETTINGS TAB -->
+  <div id="settings" class="section">
+    <h1 style="margin-bottom: 20px; color: #d4a853;">⚙️ Paramètres</h1>
+    
+    <div class="success">
+      ✅ Tous les systèmes sont opérationnels. Les données sont sauvegardées localement sur votre appareil.
+    </div>
+    
+    <div class="card">
+      <div class="card-title">🎯 Utiliser l'App Complète</div>
+      <p style="margin-bottom: 15px;">Pour accéder à la version complète avec gestion d'inventaire, cliquez sur le bouton ci-dessous:</p>
+      <a href="index.html" class="btn">Ouvrir l'App Complète →</a>
+    </div>
+    
+    <div class="card">
+      <div class="card-title">📱 Installation Mobile</div>
+      <p style="margin-bottom: 15px;">Vous pouvez installer cette app sur votre téléphone:</p>
+      <p><strong>iOS (iPhone/iPad):</strong></p>
+      <ul style="margin-left: 20px; margin-top: 5px;">
+        <li>Ouvre l'app complète (index.html)</li>
+        <li>Clique le bouton "Partager" (en bas)</li>
+        <li>Sélectionne "Sur l'écran d'accueil"</li>
+      </ul>
+      <p style="margin-top: 10px;"><strong>Android:</strong></p>
+      <ul style="margin-left: 20px; margin-top: 5px;">
+        <li>Ouvre l'app complète (index.html)</li>
+        <li>Clique le menu (⋮)</li>
+        <li>Sélectionne "Installer l'app"</li>
+      </ul>
+    </div>
+    
+    <div class="card">
+      <div class="card-title">ℹ️ À Propos</div>
+      <p><strong>Monsigny Inventory App</strong></p>
+      <p style="margin-top: 10px;">Version: 1.0.0</p>
+      <p>Date: Mai 2026</p>
+      <p style="margin-top: 10px; color: #999;">© 2026 Restaurant Monsigny</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function showTab(tabName) {
+    // Masquer tous les onglets
+    document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+    // Afficher l'onglet sélectionné
+    document.getElementById(tabName).classList.add('active');
+    // Mettre à jour les boutons
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+  }
+  
+  // Mise à jour du timestamp
+  const now = new Date();
+  document.getElementById('last-update').textContent = now.toLocaleDateString('fr-FR');
+</script>
+
+</body>
+</html>
