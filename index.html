@@ -1,850 +1,645 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Monsigny">
-<meta name="theme-color" content="#d4a853">
-<link rel="manifest" href="manifest.json">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%230f0f0f' width='192' height='192'/><text x='96' y='120' font-size='80' text-anchor='middle' fill='%23d4a853' font-family='Arial' font-weight='bold'>📦</text></svg>">
-<title>Inventaire Monsigny</title>
-<style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { background: #0f0f0f; color: #e8e8e8; font-family: 'DM Sans', sans-serif; height: 100vh; }
-.container { display: flex; flex-direction: column; height: 100vh; }
-.header { background: #1a1a1a; border-bottom: 1px solid #303030; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-.title { font-size: 18px; font-weight: 600; color: #d4a853; }
-.badge { background: #242424; padding: 6px 12px; border-radius: 4px; font-size: 12px; }
-.tabs { background: #1a1a1a; border-bottom: 1px solid #303030; padding: 10px 20px; display: flex; gap: 10px; }
-.tab { padding: 8px 16px; border: 1px solid #303030; background: transparent; color: #c0c0c0; cursor: pointer; border-radius: 4px; flex: 1; }
-.tab.active { background: #d4a853; color: #1a1000; border-color: #d4a853; }
-.search-bar { padding: 12px 20px; background: #1a1a1a; border-bottom: 1px solid #303030; }
-.search-inp { width: 100%; background: #0f0f0f; border: 1px solid #242424; color: #e8e8e8; padding: 10px 12px; border-radius: 4px; }
-.content { flex: 1; overflow-y: scroll; padding: 12px 20px 140px; }
-.section { margin: 15px 0 2px; padding: 10px 15px; background: #1a1a1a; border: 1px solid #303030; border-radius: 6px; font-weight: 600; color: #d4a853; font-size: 12px; }
-.product { background: #1a1a1a; border: 1px solid #303030; border-radius: 4px; padding: 12px; margin: 8px 0; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1.2fr 40px 40px; gap: 10px; align-items: center; }
-.product-name { font-size: 13px; font-weight: 500; }
-.product-unit { font-size: 11px; color: #808080; }
-input[type="text"], select { background: #0f0f0f; border: 1px solid #242424; color: #e8e8e8; padding: 8px; border-radius: 4px; font-size: 13px; width: 100%; }
-input:focus, select:focus { border-color: #d4a853; }
-.buttons { position: fixed; bottom: 0; left: 0; right: 0; background: #1a1a1a; border-top: 1px solid #303030; padding: 10px 20px; display: flex; gap: 8px; flex-wrap: wrap; z-index: 100; }
-button { padding: 8px 12px; border: 1px solid #303030; background: #242424; color: #e8e8e8; cursor: pointer; border-radius: 4px; font-size: 12px; font-weight: 500; }
-button:hover { background: #303030; }
-.modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.95); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-.modal-box { background: #1a1a1a; border: 1px solid #303030; padding: 30px; max-width: 450px; width: 90%; border-radius: 8px; max-height: 90vh; overflow-y: auto; }
-.modal-title { font-size: 20px; font-weight: 600; color: #d4a853; margin-bottom: 20px; }
-.modal-group { margin-bottom: 15px; }
-.modal-label { font-size: 11px; color: #c0c0c0; margin-bottom: 8px; display: block; font-weight: 600; }
-.modal-buttons { display: flex; gap: 10px; margin-top: 20px; }
-.modal-buttons button { flex: 1; padding: 10px; }
-.btn-accent { background: #d4a853; color: #1a1000; border-color: #d4a853; }
-.btn-danger { background: #ef4444; color: #fff; border-color: #ef4444; }
-.btn-success { background: #4ade80; color: #000; border-color: #4ade80; }
-.hist-item { background: #242424; padding: 12px; margin: 8px 0; border-radius: 4px; border-left: 3px solid #d4a853; cursor: pointer; }
-.hist-item:hover { background: #303030; }
-.hist-date { font-weight: 600; color: #d4a853; }
-.hist-sub { font-size: 12px; color: #808080; margin-top: 4px; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monsigny Inventory - Restaurant & Rooftop</title>
+  <meta name="theme-color" content="#d4a853">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍽️</text></svg>">
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      background: #0f0f0f;
+      color: #e8e8e8;
+      line-height: 1.6;
+    }
+    
+    .navbar {
+      background: #1a1a1a;
+      border-bottom: 3px solid #d4a853;
+      padding: 15px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    
+    .navbar-title {
+      font-size: 20px;
+      font-weight: bold;
+      color: #d4a853;
+    }
+    
+    .navbar-controls {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    
+    select {
+      background: #242424;
+      border: 1px solid #303030;
+      color: #d4a853;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    
+    .navbar-tabs {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    
+    .tab-btn {
+      background: none;
+      border: none;
+      color: #999;
+      cursor: pointer;
+      padding: 5px 10px;
+      font-size: 14px;
+      transition: all 0.3s;
+      font-weight: bold;
+    }
+    
+    .tab-btn.active {
+      color: #d4a853;
+      border-bottom: 2px solid #d4a853;
+    }
+    
+    .tab-btn:hover {
+      color: #d4a853;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .section {
+      display: none;
+    }
+    
+    .section.active {
+      display: block;
+      animation: fadeIn 0.3s;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .card {
+      background: #1a1a1a;
+      border: 1px solid #303030;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 15px;
+    }
+    
+    .card-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #d4a853;
+      margin-bottom: 15px;
+    }
+    
+    .category-section {
+      margin-bottom: 30px;
+    }
+    
+    .category-header {
+      font-size: 18px;
+      font-weight: bold;
+      color: #d4a853;
+      padding: 15px;
+      background: #242424;
+      border-left: 4px solid #d4a853;
+      margin-bottom: 15px;
+      border-radius: 4px;
+    }
+    
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .product-card {
+      background: #242424;
+      border: 1px solid #303030;
+      border-radius: 8px;
+      padding: 15px;
+      transition: all 0.3s;
+    }
+    
+    .product-card:hover {
+      border-color: #d4a853;
+      background: #2a2a2a;
+    }
+    
+    .product-name {
+      font-weight: bold;
+      color: #d4a853;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    
+    .product-info {
+      font-size: 12px;
+      color: #999;
+      margin-bottom: 10px;
+    }
+    
+    .product-supplier {
+      display: inline-block;
+      background: #1a1a1a;
+      padding: 3px 8px;
+      border-radius: 3px;
+      font-size: 11px;
+      color: #4ade80;
+      margin-bottom: 10px;
+    }
+    
+    .product-qty-control {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    
+    .qty-input {
+      width: 60px;
+      padding: 6px;
+      background: #1a1a1a;
+      border: 1px solid #303030;
+      color: #e8e8e8;
+      border-radius: 4px;
+      text-align: center;
+    }
+    
+    .qty-btn {
+      padding: 6px 10px;
+      background: #d4a853;
+      color: #1a1000;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 12px;
+    }
+    
+    .qty-btn:hover {
+      background: #e8c547;
+    }
+    
+    .btn {
+      display: inline-block;
+      padding: 12px 24px;
+      background: #d4a853;
+      color: #1a1000;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+    
+    .btn:hover {
+      background: #e8c547;
+    }
+    
+    .btn-secondary {
+      background: #303030;
+      color: #e8e8e8;
+    }
+    
+    .btn-secondary:hover {
+      background: #404040;
+    }
+    
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .stat-box {
+      background: #242424;
+      border: 1px solid #d4a853;
+      border-radius: 8px;
+      padding: 15px;
+      text-align: center;
+    }
+    
+    .stat-number {
+      font-size: 28px;
+      font-weight: bold;
+      color: #d4a853;
+    }
+    
+    .stat-label {
+      color: #999;
+      font-size: 12px;
+      margin-top: 5px;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #303030;
+    }
+    
+    th {
+      background: #242424;
+      font-weight: bold;
+      color: #d4a853;
+    }
+    
+    tr:hover {
+      background: #1a1a1a;
+    }
+  </style>
 </head>
 <body>
 
-<div id="auth" class="modal">
-<div class="modal-box">
-<div class="modal-title">📦 Inventaire Monsigny</div>
-<div class="modal-group">
-<label class="modal-label">Choisir un lieu</label>
-<select id="loc">
-<option value="">-- Sélectionner --</option>
-<option value="restaurant">🏢 RESTAURANT</option>
-<option value="rooftop">🌙 ROOFTOP</option>
-</select>
-</div>
-<div class="modal-group">
-<label class="modal-label">Votre nom</label>
-<input type="text" id="usr" placeholder="Ex: Marie">
-</div>
-<div class="modal-buttons">
-<button class="btn-accent" onclick="login()">Accéder</button>
-</div>
-</div>
+<div class="navbar">
+  <div class="navbar-title">🍽️ MONSIGNY INVENTORY</div>
+  <div class="navbar-controls">
+    <select id="location-select" onchange="changeLocation()">
+      <option value="restaurant">Restaurant Monsigny</option>
+      <option value="rooftop">Rooftop Monsigny</option>
+    </select>
+    
+    <div class="navbar-tabs">
+      <button class="tab-btn active" onclick="showTab('food')">🥘 FOOD</button>
+      <button class="tab-btn" onclick="showTab('beverages')">🍷 BEVERAGES</button>
+      <button class="tab-btn" onclick="showTab('summary')">📊 SUMMARY</button>
+    </div>
+  </div>
 </div>
 
-<div id="app" style="display:none" class="container">
-<div class="header">
-<div class="title">📦 Inventaire Monsigny</div>
-<div style="display:flex; gap:15px; align-items:center;">
-<span class="badge" id="locbadge">RESTAURANT</span>
-<button onclick="logout()" style="padding:6px 12px; font-size:11px;">Quitter</button>
-</div>
+<div class="container">
+  
+  <!-- FOOD TAB -->
+  <div id="food" class="section active">
+    <div class="card">
+      <div class="card-title">🥘 FOOD INVENTORY</div>
+      
+      <!-- FRUITS & VEGETABLES -->
+      <div class="category-section">
+        <div class="category-header">🥬 FRUITS & VEGETABLES (Cash Fruits)</div>
+        <div class="products-grid" id="food-fruits"></div>
+      </div>
+      
+      <!-- MEAT & FISH -->
+      <div class="category-section">
+        <div class="category-header">🥩 MEAT & FISH (Sysco)</div>
+        <div class="products-grid" id="food-meat"></div>
+      </div>
+      
+      <!-- DAIRY & CHEESE -->
+      <div class="category-section">
+        <div class="category-header">🧀 DAIRY & CHEESE (Sysco)</div>
+        <div class="products-grid" id="food-dairy"></div>
+      </div>
+      
+      <!-- PANTRY -->
+      <div class="category-section">
+        <div class="category-header">🏺 PANTRY & GROCERY (Sysco)</div>
+        <div class="products-grid" id="food-pantry"></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- BEVERAGES TAB -->
+  <div id="beverages" class="section">
+    <div class="card">
+      <div class="card-title">🍷 BEVERAGES INVENTORY</div>
+      
+      <!-- WINES -->
+      <div class="category-section">
+        <div class="category-header">🍇 WINES (France Boissons)</div>
+        <div class="products-grid" id="bev-wines"></div>
+      </div>
+      
+      <!-- SPIRITS -->
+      <div class="category-section">
+        <div class="category-header">🥃 SPIRITS & LIQUEURS (France Boissons)</div>
+        <div class="products-grid" id="bev-spirits"></div>
+      </div>
+      
+      <!-- SOFT DRINKS -->
+      <div class="category-section">
+        <div class="category-header">🥤 SOFT DRINKS & JUICES (France Boissons)</div>
+        <div class="products-grid" id="bev-soft"></div>
+      </div>
+      
+      <!-- COFFEE & TEA -->
+      <div class="category-section">
+        <div class="category-header">☕ COFFEE & TEA (Cafés Richard)</div>
+        <div class="products-grid" id="bev-coffee"></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- SUMMARY TAB -->
+  <div id="summary" class="section">
+    <div class="card">
+      <div class="card-title">📊 INVENTORY SUMMARY</div>
+      
+      <div class="stats">
+        <div class="stat-box">
+          <div class="stat-number" id="total-food">0</div>
+          <div class="stat-label">FOOD Products</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number" id="total-beverages">0</div>
+          <div class="stat-label">BEVERAGES Products</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number" id="total-products">0</div>
+          <div class="stat-label">Total Products</div>
+        </div>
+      </div>
+      
+      <table>
+        <tr>
+          <th>Category</th>
+          <th>Subcategory</th>
+          <th>Supplier</th>
+          <th>Products</th>
+        </tr>
+        <tr>
+          <td rowspan="4">🥘 FOOD</td>
+          <td>Fruits & Vegetables</td>
+          <td>Cash Fruits</td>
+          <td>46</td>
+        </tr>
+        <tr>
+          <td>Meat & Fish</td>
+          <td>Sysco</td>
+          <td>35+</td>
+        </tr>
+        <tr>
+          <td>Dairy & Cheese</td>
+          <td>Sysco</td>
+          <td>8+</td>
+        </tr>
+        <tr>
+          <td>Pantry & Grocery</td>
+          <td>Sysco</td>
+          <td>15+</td>
+        </tr>
+        <tr>
+          <td rowspan="4">🍷 BEVERAGES</td>
+          <td>Wines</td>
+          <td>France Boissons</td>
+          <td>60+</td>
+        </tr>
+        <tr>
+          <td>Spirits & Liqueurs</td>
+          <td>France Boissons</td>
+          <td>40+</td>
+        </tr>
+        <tr>
+          <td>Soft Drinks & Juices</td>
+          <td>France Boissons</td>
+          <td>25+</td>
+        </tr>
+        <tr>
+          <td>Coffee & Tea</td>
+          <td>Cafés Richard</td>
+          <td>10+</td>
+        </tr>
+      </table>
+    </div>
+  </div>
 </div>
 
-<div class="tabs">
-<button class="tab active" onclick="switchTab('inventory')">📊 Inventaire</button>
-<button class="tab" onclick="switchTab('history')">📜 Historique</button>
-</div>
-
-<!-- INVENTAIRE TAB -->
-<div id="inventoryTab" style="display:flex; flex-direction:column; flex:1;">
-<div class="search-bar">
-<input class="search-inp" type="text" placeholder="🔍 Rechercher..." id="search" oninput="render()">
-</div>
-<div class="content" id="cont">Chargement...</div>
-</div>
-
-<!-- HISTORIQUE TAB -->
-<div id="historyTab" style="display:none; flex:1; overflow-y:scroll; padding:20px;">
-<div id="histContent">Aucun historique</div>
-</div>
-
-<div class="buttons">
-<button onclick="exp()">💾 Export JSON</button>
-<button onclick="document.getElementById('fi').click()">📥 Import JSON</button>
-<input type="file" id="fi" accept=".json" onchange="imp(event)" style="display:none">
-<button onclick="csv()">📊 CSV</button>
-<button onclick="exportPDF()">📄 PDF</button>
-<button onclick="toggleAdd()" style="background:#d4a853; color:#1a1000; font-weight:600">➕ Ajouter</button>
-<button onclick="resetInventory()" style="background:#ef4444; color:#fff; font-weight:600">🔄 Réinitialiser</button>
-<button id="totalBtn" style="background:#4ade80; color:#000; font-weight:600; flex:1">💰 TOTAL: 0.00€</button>
-<button onclick="saveInventory()" style="background:#4ade80; color:#fff; font-weight:600; flex:1; border-color:#4ade80">✅ Enregistrer Inventaire</button>
-</div>
-</div>
-
-<!-- MODAL AJOUTER PRODUIT -->
-<div id="addModal" class="modal" style="display:none">
-<div class="modal-box">
-<div class="modal-title">➕ Ajouter un produit</div>
-<div class="modal-group">
-<label class="modal-label">Catégorie</label>
-<select id="addCat">
-<option value="">-- Sélectionner --</option>
-<option value="VINS / BIÈRES">VINS / BIÈRES</option>
-<option value="SPIRITUEUX">SPIRITUEUX</option>
-<option value="SOFTS">SOFTS</option>
-<option value="SIROPS / PUREES">SIROPS / PUREES</option>
-<option value="CAFETERIE">CAFETERIE</option>
-<option value="CUISINE">CUISINE</option>
-</select>
-</div>
-<div class="modal-group">
-<label class="modal-label">Nom du produit</label>
-<input type="text" id="addName" placeholder="Ex: Coca Cola">
-</div>
-<div class="modal-group">
-<label class="modal-label">Unité</label>
-<input type="text" id="addUnit" placeholder="Ex: btl, L, KG">
-</div>
-<div class="modal-group">
-<label class="modal-label">Prix</label>
-<input type="text" id="addPrice" placeholder="Ex: 5,50">
-</div>
-<div class="modal-buttons">
-<button class="btn-success" onclick="addProd()">✅ Ajouter</button>
-<button class="btn-danger" onclick="toggleAdd()">❌ Annuler</button>
-</div>
-</div>
-</div>
-
-<!-- MODAL DÉPLACER PRODUIT -->
-<div id="moveModal" class="modal" style="display:none">
-<div class="modal-box">
-<div class="modal-title">↔️ Déplacer un produit</div>
-<div style="margin-bottom:15px; padding:15px; background:#0f0f0f; border-radius:4px; color:#d4a853;">
-<strong id="moveProdName"></strong>
-</div>
-<div class="modal-group">
-<label class="modal-label">Vers quelle catégorie ?</label>
-<select id="moveCat">
-<option value="">-- Sélectionner --</option>
-<option value="VINS / BIÈRES">VINS / BIÈRES</option>
-<option value="SPIRITUEUX">SPIRITUEUX</option>
-<option value="SOFTS">SOFTS</option>
-<option value="SIROPS / PUREES">SIROPS / PUREES</option>
-<option value="CAFETERIE">CAFETERIE</option>
-<option value="CUISINE">CUISINE</option>
-</select>
-</div>
-<div class="modal-buttons">
-<button class="btn-success" onclick="confirmMove()">✅ Déplacer</button>
-<button class="btn-danger" onclick="cancelMove()">❌ Annuler</button>
-</div>
-</div>
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
-const PROD = {
-  "VINS / BIÈRES": [{name:"ART DE VIVRE BLANC",p:7.99,u:"btl",sup:""},{name:"ART DE VIVRE ROSE",p:7.99,u:"btl",sup:""},{name:"ART DE VIVRE ROUGE",p:7.99,u:"btl",sup:""},{name:"BELLE EPINE BLANC",p:3.92,u:"btl",sup:""},{name:"BELLE EPINE ROSÉ",p:3.92,u:"btl",sup:""},{name:"BELLE EPINE ROUGE",p:3.92,u:"btl",sup:""},{name:"CHABLIS",p:10.65,u:"btl",sup:""},{name:"CHAMPAGNE PIERRE ZERO 0%",p:12.0,u:"btl",sup:""},{name:"CHAMPAGNE BERNARD ROBERT",p:15.85,u:"btl",sup:""},{name:"CHARDONNAY ALBRIERES",p:9.5,u:"btl",sup:""},{name:"DIONYSOS",p:8.0,u:"btl",sup:""},{name:"JOYAU DE JOY",p:7.5,u:"btl",sup:""},{name:"LE CLOCHER ROSE",p:8.5,u:"btl",sup:""},{name:"MAUCAILLOU",p:11.0,u:"btl",sup:""},{name:"MINUTY BLANC",p:9.9,u:"btl",sup:""},{name:"MINUTY MAGNUM",p:18.0,u:"btl",sup:""},{name:"MINUTY PRESTIGE 3L",p:25.0,u:"btl",sup:""},{name:"MINUTY PRESTIGE ROSE",p:9.9,u:"btl",sup:""},{name:"MINUTY ROSE ET OR",p:15.5,u:"btl",sup:""},{name:"MOET ROSE",p:43.77,u:"btl",sup:""},{name:"PINK FLAMINGO",p:10.0,u:"btl",sup:""},{name:"POMMERY BRUT",p:28.34,u:"btl",sup:""},{name:"POMMERY ROSE",p:30.0,u:"btl",sup:""},{name:"PROSECCO",p:5.62,u:"btl",sup:""},{name:"PULIGNY MONRACHET",p:22.0,u:"btl",sup:""},{name:"SAINT ESTEPHE PEZ",p:13.0,u:"btl",sup:""},{name:"SANCERRE BLANC",p:15.03,u:"btl",sup:""},{name:"SAUMUR CHAMPIGNY AMARANTE",p:8.5,u:"btl",sup:""},{name:"TARIQUET",p:7.77,u:"btl",sup:""},{name:"VEUVE PELLETIER MAGNUM",p:20.0,u:"btl",sup:""},{name:"VIOGNIER ALBRIERES",p:9.5,u:"btl",sup:""},{name:"ZYTHA BLONDE",p:2.13,u:"btl",sup:""},{name:"ZYTHA IPA",p:2.13,u:"btl",sup:""},{name:"CHATEAUNEUF DU PAPE",p:29.5,u:"btl",sup:""},{name:"CIDRE 25CL",p:4.0,u:"btl",sup:""},{name:"CORONA 33CL VP",p:2.32,u:"btl",sup:""},{name:"FUT HEINEKEN 30L",p:124.0,u:"fut",sup:""},{name:"HEINEKEN 0%",p:1.21,u:"btl",sup:""},{name:"3 RIVIERES",p:7.5,u:"btl",sup:""},{name:"BROOKLYN EFFECTS HOPPY LAGER 0.4",p:48.74,u:"BTL",sup:"FRANCE BOISSONS"},{name:"VDF G SELECT RODET PINOT NOIR 75CL",p:75.42,u:"BTL",sup:"FRANCE BOISSONS"},{name:"COT RHONE AOC DOM DIONYSOS BIO 75CL",p:100.8,u:"BTL",sup:"FRANCE BOISSONS"}],
-  "SPIRITUEUX": [{name:"AMARETTO",p:14.0,u:"btl",sup:""},{name:"ANGOSTURA",p:12.0,u:"btl",sup:""},{name:"APEROL 1L",p:11.57,u:"btl",sup:""},{name:"BACARDI",p:11.41,u:"btl",sup:""},{name:"BACARDI QUATRO",p:12.0,u:"btl",sup:""},{name:"BAILEYS 70CL",p:12.08,u:"btl",sup:""},{name:"BELUGA",p:45.0,u:"btl",sup:""},{name:"BOMBAY BRUMBLE",p:16.0,u:"btl",sup:""},{name:"BOMBAY SAPPHIRE",p:14.16,u:"btl",sup:""},{name:"BOTANIST",p:28.55,u:"btl",sup:""},{name:"BULLET BOURBON 70CL",p:17.17,u:"btl",sup:""},{name:"CACHACA",p:18.0,u:"btl",sup:""},{name:"CALVADOS",p:20.0,u:"btl",sup:""},{name:"CAMPARI 1L",p:11.3,u:"btl",sup:""},{name:"CASANIS",p:13.0,u:"btl",sup:""},{name:"CHAMBORD",p:19.38,u:"btl",sup:""},{name:"CHARTREUSE",p:34.41,u:"btl",sup:""},{name:"COINTREAU",p:22.0,u:"btl",sup:""},{name:"CREME DE CASSIS",p:10.0,u:"btl",sup:""},{name:"CREME DE MURE",p:11.0,u:"btl",sup:""},{name:"CREME DE PECHE",p:11.0,u:"btl",sup:""},{name:"CURACAO BLEU",p:16.0,u:"btl",sup:""},{name:"DON PAPA",p:25.67,u:"btl",sup:""},{name:"ERISTOFF",p:14.0,u:"btl",sup:""},{name:"FOUR ROSES",p:20.0,u:"btl",sup:""},{name:"GET 27 1L",p:11.88,u:"btl",sup:""},{name:"GET 31 1L",p:12.0,u:"btl",sup:""},{name:"GLENFIDICH 15 ANS",p:41.55,u:"btl",sup:""},{name:"GORDON",p:15.0,u:"btl",sup:""},{name:"GRAND MARNIER",p:24.0,u:"btl",sup:""},{name:"GRANTS",p:16.0,u:"btl",sup:""},{name:"GRAPPA",p:18.0,u:"btl",sup:""},{name:"GREY GOOSE 70CL",p:33.73,u:"btl",sup:""},{name:"HENDRICKS 70CL",p:32.07,u:"btl",sup:""},{name:"HENNESSY VS",p:80.0,u:"btl",sup:""},{name:"HENNESSY XO",p:176.22,u:"btl",sup:""},{name:"JOHNNY WALKER BLACK 70CL",p:19.07,u:"btl",sup:""},{name:"KAHLUA",p:15.0,u:"btl",sup:""},{name:"LEMONCELLO",p:16.0,u:"btl",sup:""},{name:"LILLET ROSE",p:14.0,u:"btl",sup:""},{name:"MALIBU",p:13.0,u:"btl",sup:""},{name:"MANZANA",p:10.0,u:"btl",sup:""},{name:"MARTINI BLANC 1L",p:9.72,u:"btl",sup:""},{name:"MARTINI DRY",p:10.0,u:"btl",sup:""},{name:"MARTINI FLORALE",p:10.5,u:"btl",sup:""},{name:"MARTINI ROUGE",p:10.0,u:"btl",sup:""},{name:"MEZCAL",p:28.0,u:"btl",sup:""},{name:"NIKKA",p:50.0,u:"btl",sup:""},{name:"PADDYS",p:14.0,u:"btl",sup:""},{name:"PASSOA",p:14.0,u:"btl",sup:""},{name:"PASTIS",p:12.0,u:"btl",sup:""},{name:"PATRON ANEJO",p:49.81,u:"btl",sup:""},{name:"PATRON REPOSADO",p:38.0,u:"btl",sup:""},{name:"PATRON SILVER",p:35.0,u:"btl",sup:""},{name:"PIMMS",p:15.0,u:"btl",sup:""},{name:"POIRE WILLIAMS",p:20.0,u:"btl",sup:""},{name:"PORTO BLANC",p:12.0,u:"btl",sup:""},{name:"PORTO ROUGE",p:12.0,u:"btl",sup:""},{name:"REMY MARTIN VSOP",p:44.32,u:"btl",sup:""},{name:"RICARD 1L",p:8.43,u:"btl",sup:""},{name:"SAINT GERMAIN 70CL",p:28.55,u:"btl",sup:""},{name:"SANTA THERESA",p:25.0,u:"btl",sup:""},{name:"SOHO",p:12.0,u:"btl",sup:""},{name:"TALISKER",p:36.43,u:"btl",sup:""},{name:"TEQUILA CAMINO",p:22.0,u:"btl",sup:""},{name:"VODKA 06",p:42.85,u:"btl",sup:""},{name:"MARTINI VIBRANTE",p:11.0,u:"btl",sup:""},{name:"APEROL BARBIERI 12.5 100CL",p:251.74,u:"BTL",sup:"FRANCE BOISSONS"},{name:"CAMPARI BITTER 25 100CL",p:31.92,u:"BTL",sup:"FRANCE BOISSONS"},{name:"RHUM BLANC TROIS RIVIERES 50 100CL",p:70.58,u:"BTL",sup:"FRANCE BOISSONS"},{name:"RHUM AMBRE TROIS RIVIERE 40 70CL",p:13.0,u:"BTL",sup:"FRANCE BOISSONS"}],
-  "SOFTS": [{name:"BITTER SAN PELLEGRINO",p:1.5,u:"btl",sup:""},{name:"COCA COLA 33CL VC",p:1.07,u:"btl",sup:""},{name:"COCA COLA PET",p:2.5,u:"btl",sup:""},{name:"COCA COLA ZERO 33CL VC",p:1.07,u:"btl",sup:""},{name:"COCA COLA ZERO PET",p:2.5,u:"btl",sup:""},{name:"EVIAN 1L VC",p:1.1,u:"btl",sup:""},{name:"EVIAN 1L PLASTIQUE",p:0.8,u:"btl",sup:""},{name:"EVIAN 50CL VC",p:0.9,u:"btl",sup:""},{name:"EVIAN 50CL PLASTIQUE",p:0.6,u:"btl",sup:""},{name:"FANTA 25CL",p:1.2,u:"btl",sup:""},{name:"FANTA CANETTE METAL",p:1.3,u:"btl",sup:""},{name:"FEVER TREE 25CL VP",p:1.36,u:"btl",sup:""},{name:"GINGER BEER",p:2.0,u:"btl",sup:""},{name:"ICE TEA",p:2.2,u:"btl",sup:""},{name:"JUS ANANAS",p:2.49,u:"L",sup:""},{name:"JUS BANANE",p:2.5,u:"L",sup:""},{name:"JUS CRANBERRY",p:3.0,u:"L",sup:""},{name:"JUS MANGUE",p:2.8,u:"L",sup:""},{name:"JUS ORANGE LITRE",p:3.64,u:"L",sup:""},{name:"JUS POMME",p:2.5,u:"L",sup:""},{name:"JUS TOMATE",p:2.3,u:"L",sup:""},{name:"ORANGINA",p:2.2,u:"btl",sup:""},{name:"PERRIER 33CL VC",p:1.07,u:"btl",sup:""},{name:"PERRIER PET",p:1.8,u:"btl",sup:""},{name:"RED BULL",p:1.2,u:"btl",sup:""},{name:"SAN PELLEGRINO 1L VC",p:1.33,u:"btl",sup:""},{name:"SAN PELLEGRINO 50CL",p:0.95,u:"btl",sup:""},{name:"SCHWEPPES 150CL PET",p:2.0,u:"btl",sup:""},{name:"SCHWEPPES 25CL VC",p:0.99,u:"btl",sup:""},{name:"SPRITE 125CL PET",p:2.0,u:"btl",sup:""},{name:"GRANINI JUS TOMATE",p:12.85,u:"BTL",sup:"FRANCE BOISSONS"},{name:"VITTEL GRANDE SOURCE VC 20X50CL",p:32.4,u:"BTL",sup:"FRANCE BOISSONS"},{name:"EVIAN VC 1.2L 100CL",p:35.64,u:"BTL",sup:"FRANCE BOISSONS"},{name:"SAN PELLEGRINO GAZEUSE VC 1.2L",p:43.1,u:"BTL",sup:"FRANCE BOISSONS"},{name:"SAN PELLEGRINO GAZEUSE VC 20X50CL",p:51.2,u:"BTL",sup:"FRANCE BOISSONS"},{name:"COCA-COLA VC 24X33CL",p:31.92,u:"BTL",sup:"FRANCE BOISSONS"}],
-  "SIROPS / PUREES": [{name:"AGAVE",p:11.48,u:"btl",sup:""},{name:"CARAIBOS COCO",p:9.0,u:"btl",sup:""},{name:"CERISE",p:8.0,u:"btl",sup:""},{name:"CITRON",p:7.5,u:"btl",sup:""},{name:"FRAISE",p:8.06,u:"btl",sup:""},{name:"GRENADINE",p:8.31,u:"btl",sup:""},{name:"GRENADINE CITRONNADE 95CL VP",p:7.5,u:"btl",sup:""},{name:"KIWI",p:8.5,u:"btl",sup:""},{name:"LAVANDE",p:9.0,u:"btl",sup:""},{name:"MENTHE",p:0.69,u:"btl",sup:""},{name:"ORGEAT",p:6.58,u:"btl",sup:""},{name:"PECHE",p:8.21,u:"btl",sup:""},{name:"PULCO",p:7.5,u:"btl",sup:""},{name:"PUREE FRUITS ROUGES",p:14.0,u:"btl",sup:""},{name:"PUREE PASSION",p:15.96,u:"btl",sup:""},{name:"SUCRE",p:6.93,u:"btl",sup:""},{name:"SUREAU",p:10.4,u:"btl",sup:""},{name:"VANILLE",p:9.0,u:"btl",sup:""},{name:"VIOLETTE",p:9.38,u:"btl",sup:""}],
-  "CAFETERIE": [{name:"CAFE KG",p:23.95,u:"KG",sup:""},{name:"DECA",p:15.3,u:"KG",sup:""},{name:"PERLES CHOCOLAT",p:12.0,u:"boite",sup:""},{name:"SACHET DE THE",p:11.4,u:"boite",sup:""},{name:"SACHETS INFUSIONS",p:13.09,u:"boite",sup:""},{name:"SUCRE BUCHETTE",p:9.5,u:"boite",sup:""},{name:"VIM LAMBRASCO 75CL",p:8.0,u:"btl",sup:""},{name:"BROWNIES",p:17.8,u:"KG",sup:""},{name:"GOLD STRIKE LIQUEUR",p:14.0,u:"btl",sup:""},{name:"SUZE",p:18.0,u:"btl",sup:""},{name:"CAFE FLORIO 1kg GRS",p:23.95,u:"KG",sup:"CAFES RICHARD"},{name:"PERLES ASSORTIES 500 1KG",p:33.1,u:"KG",sup:"CAFES RICHARD"},{name:"SUCRE FLORIO 700 BUCH",p:9.5,u:"KG",sup:"CAFES RICHARD"},{name:"CAFE FLOR FINA 1kg GRS",p:19.9,u:"KG",sup:"CAFES RICHARD"},{name:"INFUSION GLACEE LRDC ABRICOT PECHE BIOLO",p:13.09,u:"KG",sup:"CAFES RICHARD"},{name:"INFUSION GLACEE LRDC FRAMBOI MELON BIOLO",p:13.09,u:"KG",sup:"CAFES RICHARD"},{name:"THE GLACE LRDC GING ORANGE ABRI BIO X10",p:13.09,u:"KG",sup:"CAFES RICHARD"}]
-,
-"CUISINE": [{name:"BASILIC",p:0.69,u:"PIECE",sup:"CASH-FRUITS"},{name:"BETTERAVE SOUS VIDE",p:3.15,u:"KG",sup:"CASH-FRUITS"},{name:"BUTTERNUT",p:1.49,u:"KG",sup:"CASH-FRUITS"},{name:"CAROTTE",p:1.19,u:"KG",sup:"CASH-FRUITS"},{name:"CEBETTE",p:0.83,u:"PIECE",sup:"CASH-FRUITS"},{name:"CHOU FLEUR",p:2.22,u:"KG",sup:"CASH-FRUITS"},{name:"CIBOULETTE",p:0.59,u:"PIECE",sup:"CASH-FRUITS"},{name:"CITRON JAUNE",p:1.99,u:"KG",sup:"CASH-FRUITS"},{name:"CITRON VERT",p:2.29,u:"KG",sup:"CASH-FRUITS"},{name:"CONCOMBRE",p:1.89,u:"PIECE",sup:"CASH-FRUITS"},{name:"COURGETTE",p:2.59,u:"KG",sup:"CASH-FRUITS"},{name:"ECHALOTTE",p:1.99,u:"KG",sup:"CASH-FRUITS"},{name:"GRENAILLE",p:1.59,u:"KG",sup:"CASH-FRUITS"},{name:"MESCLUN",p:5.99,u:"KG",sup:"CASH-FRUITS"},{name:"OIGNON BLANC",p:4.22,u:"KG",sup:"CASH-FRUITS"},{name:"OIGNON ROUGE",p:1.86,u:"KG",sup:"METRO"},{name:"PATATE DOUCE",p:1.59,u:"KG",sup:"CASH-FRUITS"},{name:"POIVRON ROUGE",p:3.99,u:"KG",sup:"CASH-FRUITS"},{name:"POMME DE TERRE NOUVELLE",p:1.19,u:"KG",sup:"CASH-FRUITS"},{name:"POMME GOLDEN",p:1.49,u:"KG",sup:"CASH-FRUITS"},{name:"RADIS",p:1.49,u:"PIECE",sup:"CASH-FRUITS"},{name:"ROMAINE SACHET",p:2.49,u:"PIECE",sup:"CASH-FRUITS"},{name:"ROQUETTE",p:5.99,u:"KG",sup:"CASH-FRUITS"},{name:"GERME BETTERAVE",p:3.19,u:"PIECE",sup:"CASH-FRUITS"},{name:"SOJA BQT",p:1.99,u:"PIECE",sup:"CASH-FRUITS"},{name:"FRAMBOISE",p:2.69,u:"PIECE",sup:"CASH-FRUITS"},{name:"CORIANDRE",p:0.59,u:"PIECE",sup:"CASH-FRUITS"},{name:"PERSIL",p:0.55,u:"PIECE",sup:"CASH-FRUITS"},{name:"ARTICHAUT VIOLET BOUQUET",p:4.49,u:"PIECE",sup:"CASH-FRUITS"},{name:"CELERY BRANCHE",p:2.19,u:"KG",sup:"CASH-FRUITS"},{name:"BROCOLI",p:3.49,u:"KG",sup:"CASH-FRUITS"},{name:"TOPINAMBOURG",p:2.99,u:"KG",sup:"CASH-FRUITS"},{name:"MYRTILLE",p:2.79,u:"PIECE",sup:"CASH-FRUITS"},{name:"GRANNY 85+",p:2.29,u:"KG",sup:"CASH-FRUITS"},{name:"MENTHE",p:0.59,u:"PIECE",sup:"CASH-FRUITS"},{name:"POIVRON VERT",p:3.22,u:"KG",sup:"CASH-FRUITS"},{name:"TOMATE CERISE GRAPPE",p:3.99,u:"KG",sup:"CASH-FRUITS"},{name:"FRITE FRAICHE",p:1.59,u:"KG",sup:"CASH-FRUITS"},{name:"CHAMPI CREME",p:5.96,u:"KG",sup:"CASH-FRUITS"},{name:"CERFEUIL",p:0.69,u:"PIECE",sup:"CASH-FRUITS"},{name:"CHOU ROUGE",p:1.89,u:"KG",sup:"CASH-FRUITS"},{name:"POTIMARRON",p:2.59,u:"KG",sup:"CASH-FRUITS"},{name:"ANANAS SWEET AVION",p:5.99,u:"KG",sup:"CASH-FRUITS"},{name:"KIWI",p:0.59,u:"PIECE",sup:"CASH-FRUITS"},{name:"PDT VITTELOTTE",p:3.99,u:"KG",sup:"CASH-FRUITS"},{name:"GRENADE",p:4.99,u:"KG",sup:"CASH-FRUITS"},{name:"RADIS LONG",p:1.19,u:"PIECE",sup:"CASH-FRUITS"},{name:"AIL EPLUCHE",p:5.99,u:"KG",sup:"CASH-FRUITS"},{name:"ROMARIN",p:0.69,u:"PIECE",sup:"CASH-FRUITS"},{name:"THYM",p:0.69,u:"PIECE",sup:"CASH-FRUITS"},{name:"POIRE WILLIAMS",p:3.55,u:"KG",sup:"CASH-FRUITS"},{name:"PDT EPLUCHE",p:2.29,u:"KG",sup:"CASH-FRUITS"},{name:"POIVRON JAUNE",p:3.99,u:"KG",sup:"CASH-FRUITS"},{name:"GINGEMBRE",p:7.68,u:"KG",sup:"METRO"},{name:"SHISO KRESS",p:24.0,u:"COLIS",sup:"CASH-FRUITS"},{name:"AUBERGINE",p:3.5,u:"KG",sup:"CASH-FRUITS"},{name:"SEL FIN",p:0.8,u:"KG",sup:"METRO"},{name:"GROS SEL",p:0.85,u:"KG",sup:"METRO"},{name:"LINGUINES",p:0.69,u:"KG",sup:"SYSCO"},{name:"PENNE",p:3.1,u:"KG",sup:"METRO"},{name:"LASAGNES PLAQUES",p:6.96,u:"KG",sup:"SYSCO"},{name:"RIZ BASMATI",p:2.8,u:"KG",sup:"SYSCO"},{name:"RIZ CANNAROLI",p:4.11,u:"KG",sup:"METRO"},{name:"TRIO QUINOA",p:8.48,u:"KG",sup:"METRO"},{name:"QUINOA ROUGE",p:8.57,u:"KG",sup:"METRO"},{name:"PUREE EN POUDRE",p:3.14,u:"KG",sup:"SYSCO"},{name:"LENTILLES VERTES",p:3.99,u:"KG",sup:"METRO"},{name:"NOUILLES DE RIZ",p:4.37,u:"SACHET",sup:"SYSCO"},{name:"SEMOULE DE BLE DUR",p:1.52,u:"KG",sup:"METRO"},{name:"PANKO",p:6.14,u:"KG",sup:"METRO"},{name:"COUSCOUS",p:2.16,u:"KG",sup:"SYSCO"},{name:"BALSAMIQUE",p:2.97,u:"LITRE",sup:"METRO"},{name:"PISTACHE",p:22.19,u:"KG",sup:"METRO"},{name:"CACAHUETTES GRILLES",p:6.0,u:"KG",sup:"METRO"},{name:"RAISIN SEC",p:5.88,u:"KG",sup:"SYSCO"},{name:"POUDRE D'AMANDE",p:9.8,u:"KG",sup:"METRO"},{name:"NOIX",p:9.4,u:"KG",sup:"SYSCO"},{name:"CHAPELURE",p:2.92,u:"KG",sup:"SYSCO"},{name:"ORIGAN 500G",p:5.8,u:"BOITE",sup:"METRO"},{name:"LAIT DE COCO",p:4.19,u:"LITRE",sup:"METRO"},{name:"CONCENTRE DE TOMATES",p:2.55,u:"BOITE",sup:"SYSCO"},{name:"POIS CHICHE",p:3.61,u:"KG",sup:"SYSCO"},{name:"HARISSA",p:0.82,u:"KG",sup:"METRO"},{name:"HARICOT ROUGE BOITE",p:1.77,u:"KG",sup:"METRO"},{name:"CORNICHON",p:2.97,u:"BOITE",sup:"SYSCO"},{name:"CAPRES FINES",p:3.16,u:"BOITE",sup:"SYSCO"},{name:"VINAIGRE DE VIN COLORE",p:1.1,u:"LITRE",sup:""},{name:"BRANDY",p:9.47,u:"BOUTEILLE",sup:"METRO"},{name:"COGNAC",p:26.03,u:"BOUTEILLE",sup:"METRO"},{name:"MIEL DE FLEURS",p:6.2,u:"KG",sup:"SYSCO"},{name:"TAHINA",p:13.55,u:"PIECE",sup:"SYSCO"},{name:"TABASCO 60ML",p:3.11,u:"BOUTEILLE",sup:"METRO"},{name:"MOUTARDE A L'ANCIENNE",p:3.9,u:"KG",sup:"METRO"},{name:"MOUTARDE DE DIJON",p:3.42,u:"KG",sup:"METRO"},{name:"MAYONNAISE",p:2.38,u:"KG",sup:"METRO"},{name:"KETCHUP",p:1.7,u:"KG",sup:"METRO"},{name:"POIVRE VERT",p:8.39,u:"BOUTEILLE",sup:"SYSCO"},{name:"CITRON CONFIT 2,5KG",p:9.6,u:"BOITE",sup:"METRO"},{name:"FARINE DE BLE",p:0.7,u:"KG",sup:"METRO"},{name:"WORCESTERSHIRE",p:1.71,u:"BOUTEILLE",sup:""},{name:"HUILE DE NOISETTE 50CL",p:8.05,u:"PIECE",sup:""},{name:"BALSAMIC BLANC",p:3.34,u:"LITRE",sup:"METRO"},{name:"SESAME NOIR",p:7.24,u:"SACHET",sup:"SYSCO"},{name:"CHUTNEY MANGUE 550G",p:5.79,u:"BOITE",sup:"METRO"},{name:"TERIYAKI",p:11.08,u:"BOUTEILLE",sup:"METRO"},{name:"PONZU",p:19.01,u:"BOUTEILLE",sup:"METRO"},{name:"SWEET CHILI",p:15.35,u:"BOUTEILLE",sup:"METRO"},{name:"SAUCE SOJA SALE",p:9.48,u:"BOUTEILLE",sup:"METRO"},{name:"OLIVES NOIRES",p:9.48,u:"BOITE",sup:"SYSCO"},{name:"CANELLE POUDRE 1KG",p:11.51,u:"SACHET",sup:"METRO"},{name:"PAPRIKA 550G",p:6.12,u:"BOITE",sup:"METRO"},{name:"CUMIN 1KG",p:23.0,u:"SACHET",sup:"METRO"},{name:"BAIE DE GENIEVRE 300G",p:9.28,u:"BOITE",sup:"METRO"},{name:"EPICES ESPAGNOLES 290G",p:11.19,u:"BOITE",sup:"METRO"},{name:"PAPRIKA FUME 550G",p:15.35,u:"BOITE",sup:"METRO"},{name:"GINGEMBRE MOULU 130G",p:4.28,u:"BOITE",sup:"METRO"},{name:"EPICE ROUILLE 200G",p:4.07,u:"BOITE",sup:"METRO"},{name:"SPIGOL 100G",p:31.11,u:"BOITE",sup:"METRO"},{name:"EPICE COUSCOUS 500G",p:8.74,u:"BOITE",sup:"METRO"},{name:"SUMAC 50G",p:6.05,u:"BOITE",sup:"METRO"},{name:"ZAATAR 150G",p:3.95,u:"BOITE",sup:"METRO"},{name:"CURCUMA 500G",p:4.95,u:"SACHET",sup:"METRO"},{name:"RAS EL HANOUT 450G",p:6.0,u:"BOITE",sup:"METRO"},{name:"PIMENT ESPELETTE 250G",p:27.08,u:"SACHET",sup:"SYSCO"},{name:"POIVRE NOIR GRAINS 1KG",p:19.27,u:"BOITE",sup:"METRO"},{name:"POIVRE BLANC GRAINS",p:22.23,u:"BOITE",sup:"METRO"},{name:"POIVRE NOIR POUDRE 550G",p:17.3,u:"BOITE",sup:"METRO"},{name:"MELANGE 5 BAIES 400G",p:11.7,u:"BOITE",sup:"METRO"},{name:"FOND BLANC VOLAILLE 800G",p:19.9,u:"PIECE",sup:""},{name:"GRAINES DE CHIA 300G",p:8.82,u:"BOITE",sup:"METRO"},{name:"BRISURES DE SPECULOS 1,1KG",p:6.01,u:"SACHET",sup:"METRO"},{name:"KADAIF 500G",p:2.98,u:"SACHET",sup:"METRO"},{name:"NOIX MACADAMIA CRU 1KG",p:41.43,u:"SACHET",sup:"METRO"},{name:"AMANDE CONCASSEE 1KG",p:14.76,u:"SACHET",sup:"METRO"},{name:"NOIX DE CAJOU 1KG",p:17.86,u:"SACHET",sup:"METRO"},{name:"FARINE 55",p:0.9,u:"KG",sup:"METRO"},{name:"SUCRE BLANC",p:1.34,u:"KG",sup:"METRO"},{name:"SUCRE GLACE",p:2.89,u:"KG",sup:"SYSCO"},{name:"SUCRE ROUX",p:2.9,u:"KG",sup:"METRO"},{name:"FARINE POIS CHICHE",p:4.0,u:"KG",sup:"METRO"},{name:"NAPPAGE BLOND 900G",p:5.13,u:"BOITE",sup:"SYSCO"},{name:"PRALIN AMANDE NOISETTE",p:10.62,u:"KG",sup:"METRO"},{name:"CHOCOLAT BLANC 34%",p:26.33,u:"KG",sup:"METRO"},{name:"CHOCOLAT BLANC 30%",p:14.82,u:"KG",sup:"METRO"},{name:"BEURRE DE CACAO",p:46.3,u:"KG",sup:"METRO"},{name:"CHOCOLAT 54%",p:13.12,u:"KG",sup:"METRO"},{name:"PATE DE MARRON",p:4.8,u:"KG",sup:"METRO"},{name:"FARINE DE MAIS 700G",p:4.12,u:"BOITE",sup:"SYSCO"},{name:"CREME PATISSIERE POUDRE",p:6.98,u:"KG",sup:"METRO"},{name:"FEUILLE DE GELATINE",p:36.29,u:"KG",sup:"METRO"},{name:"RIZ SUSHI",p:1.88,u:"KG",sup:"METRO"},{name:"TARTELETTE SABLEE *96",p:47.95,u:"BOITE",sup:"METRO"},{name:"FOND DE TARTE SUCRE *96",p:47.95,u:"BOITE",sup:"METRO"},{name:"BISCUITS CUILLERE 1,6KG",p:9.35,u:"BOITE",sup:"METRO"},{name:"FOND DE TARTE SALEE *9",p:10.47,u:"BOITE",sup:"METRO"},{name:"HUILE TOURNESOL 10L",p:10.49,u:"BOUTEILLE",sup:"METRO"},{name:"HUILE OLIVE 5L",p:29.54,u:"BOUTEILLE",sup:"METRO"},{name:"PAIN BURGER *6",p:3.22,u:"SACHET",sup:"METRO"},{name:"SAFRAN POUDRE 10G",p:38.79,u:"BOITE",sup:"SYSCO"},{name:"AROME VANILLE",p:5.76,u:"LITRE",sup:"METRO"},{name:"BAKING POWDER",p:8.88,u:"KG",sup:"METRO"},{name:"AGAR AGAR 650G",p:36.02,u:"BOITE",sup:"METRO"},{name:"XANTAN",p:46.91,u:"KG",sup:"METRO"},{name:"BLANC ŒUF POUDRE",p:50.52,u:"KG",sup:"METRO"},{name:"ACIDE ASCORBIQUE",p:36.49,u:"KG",sup:"METRO"},{name:"VANILLE ENTIERE 60G",p:19.03,u:"BOITE",sup:"METRO"},{name:"LENTILLES NOIRES",p:4.3,u:"KG",sup:"METRO"},{name:"PAIN PITA *10 800G",p:3.24,u:"SACHET",sup:"METRO"},{name:"TEMPURA",p:9.38,u:"KG",sup:"SYSCO"},{name:"HUILE FRITEUSE",p:2.4,u:"LITRE",sup:"GINEYS"},{name:"EXTRAIT DE VANILLE",p:52.0,u:"LITRE",sup:"GINEYS"},{name:"CREMFIX",p:11.98,u:"BOITE",sup:"SYSCO"},{name:"PATE DE SPECULOOS",p:14.57,u:"BOITE",sup:"SYSCO"},{name:"CREME LIQUIDE",p:4.61,u:"BOUTEILLE",sup:"METRO"},{name:"MASCARPONE",p:5.71,u:"BOUTEILLE",sup:"SYSCO"},{name:"SAINT NECTAIRE",p:11.15,u:"KG",sup:"SYSCO"},{name:"JAUNE D'ŒUF",p:6.92,u:"BOUTEILLE",sup:"SYSCO"},{name:"LAIT ENTIER",p:1.1,u:"LITRE",sup:"SYSCO"},{name:"FROMAGE RAPE",p:4.0,u:"KG",sup:"SYSCO"},{name:"PARMESAN EN POUDRE 500G",p:10.61,u:"SACHET",sup:"SYSCO"},{name:"ŒUF ENTIER * 180",p:109.25,u:"COLIS",sup:"GINEYS"},{name:"BEURRE DEMI SEL",p:10.84,u:"KG",sup:"SYSCO"},{name:"BEURRE DOUX",p:9.44,u:"KG",sup:"SYSCO"},{name:"BEURRE CLARIFIE 800G",p:12.5,u:"BOITE",sup:"METRO"},{name:"BOUTEILLE TIRAMISU",p:8.68,u:"LITRE",sup:"SYSCO"},{name:"BLANC D'ŒUF",p:4.42,u:"LITRE",sup:"SYSCO"},{name:"MOUSSE CHOCOLAT BRIQUE",p:8.88,u:"LITRE",sup:"SYSCO"},{name:"ŒUF ENTIER CUIT",p:0.32,u:"PIECE",sup:"GINEYS"},{name:"BOMBE CHANTILLY",p:6.5,u:"PIECE",sup:"SYSCO"},{name:"THON EN BOITE",p:6.09,u:"BOITE",sup:"SYSCO"},{name:"ANCHOIS",p:13.0,u:"BOITE",sup:"SYSCO"},{name:"FILETS DE SAUMON",p:13.9,u:"KG",sup:"LA POISSONNERIE NICE"},{name:"LARDONS",p:6.67,u:"KG",sup:"METRO"},{name:"DES DE CHORIZO",p:9.95,u:"KG",sup:"GINEYS"},{name:"ENTRECOTE",p:25.14,u:"KG",sup:"SYSCO"},{name:"MERGUEZ",p:10.25,u:"KG",sup:"METRO"},{name:"STEAK HACHE",p:3.6,u:"KG",sup:"SYSCO"},{name:"FILET MIGNON DE PORC",p:8.27,u:"KG",sup:"CHARLES MARTIN"},{name:"RUMSTEACK",p:15.3,u:"KG",sup:"SYSCO"},{name:"BLANC DE POULET",p:7.65,u:"KG",sup:"SYSCO"},{name:"LOUP FILET",p:12.9,u:"KG",sup:"LA POISSONNERIE NICE"},{name:"DOS CABILLAUD",p:32.9,u:"KG",sup:"LA POISSONNERIE NICE"},{name:"BALLOTINE POULET MORILLES COGNAC",p:12.95,u:"KG",sup:"GINEYS"},{name:"JAMBON SEC",p:11.59,u:"KG",sup:"SYSCO"},{name:"ROSETTE",p:9.94,u:"KG",sup:"SYSCO"},{name:"ECLAIR CHOCOLAT",p:1.012,u:"PIECE",sup:"CHARLES MARTIN"},{name:"BALLOTINE POULET MORILLES",p:12.95,u:"KG",sup:"GINEYS"},{name:"BEIGNET DE COURGETTE",p:9.223,u:"KG",sup:"METRO"},{name:"BLANC DE POULET",p:8.02,u:"KG",sup:"SYSCO"},{name:"BUCHE PRALINE",p:11.0,u:"PIECE",sup:"CHARLES MARTIN"},{name:"CHEESCAKE",p:14.2,u:"PIECE",sup:"SYSCO"},{name:"CHEVRE CROUSTILLANT",p:1.68,u:"PIECE",sup:"SYSCO"},{name:"COLLIER D'AGNEAU",p:9.5,u:"KG",sup:"GINEYS"},{name:"CUISSE DE POULET",p:4.05,u:"KG",sup:"GINEYS"},{name:"ECLAIR CHOCOLAT",p:0.81,u:"PIECE",sup:"SYSCO"},{name:"PATE FEUILLETE",p:11.0,u:"KG",sup:"CHARLES MARTIN"},{name:"FILET DE DAURADE",p:22.93,u:"KG",sup:"SYSCO"},{name:"FISH AND CHIPS",p:8.9,u:"KG",sup:"SYSCO"},{name:"FOIE GRAS MI CUIT",p:15.9,u:"BLOC",sup:"GINEYS"},{name:"FONDANT CHOCOLAT",p:1.76,u:"PIECE",sup:"GINEYS"},{name:"FRITES SURGELEES",p:1.34,u:"KG",sup:"SYSCO"},{name:"GLACE VANILLE",p:12.97,u:"LITRE",sup:"METRO"},{name:"HARICOT VERT",p:1.86,u:"KG",sup:"SYSCO"},{name:"MACARON ASSORTIS 924G",p:28.4,u:"BOITE",sup:"METRO"},{name:"MARRON ENTIER",p:11.1,u:"KG",sup:"SYSCO"},{name:"MERGUEZ HALAL",p:12.6,u:"KG",sup:"SYSCO"},{name:"MINI MOELLEUX",p:0.78,u:"PIECE",sup:"SYSCO"},{name:"NOUGAT GLACE",p:17.88,u:"KG",sup:"METRO"},{name:"OIGNON EMINCE",p:3.09,u:"KG",sup:"GINEYS"},{name:"OSSU BUSSO",p:15.65,u:"KG",sup:"LERDA"},{name:"PETIT POIS",p:2.83,u:"KG",sup:"CHARLES MARTIN"},{name:"POIVRON GRILLE DUO",p:4.5,u:"SAC",sup:"GINEYS"},{name:"PONTHIER ANANAS",p:10.0,u:"KG",sup:"METRO"},{name:"PONTHIER CERISE",p:11.5,u:"KG",sup:"METRO"},{name:"PONTHIER CITRON",p:8.49,u:"KG",sup:"METRO"},{name:"PONTHIER FRAMBOISE",p:8.92,u:"KG",sup:"METRO"},{name:"PONTHIER GRENADE",p:18.0,u:"KG",sup:"METRO"},{name:"PONTHIER MANGUE",p:7.92,u:"KG",sup:"METRO"},{name:"PONTHIER POIRE",p:8.43,u:"KG",sup:"METRO"},{name:"POULET PANE",p:11.0,u:"KG",sup:"METRO"},{name:"PUREE PDT SURGELEE",p:2.41,u:"KG",sup:"SYSCO"},{name:"RATATOUILLE",p:3.8,u:"KG",sup:"SYSCO"},{name:"RAVIOLIS 5 FROMAGES",p:5.4,u:"KG",sup:"SYSCO"},{name:"RAVIOLIS CHEVRE",p:10.65,u:"KG",sup:"SYSCO"},{name:"SAUTE DE DINDE",p:11.06,u:"KG",sup:"SYSCO"},{name:"SCINTILLANT CHOCO CARAMEL",p:37.5,u:"PIECE",sup:"SYSCO"},{name:"STEACK HACHE",p:15.5,u:"KG",sup:"GINEYS"},{name:"TARTE AUX POIRES",p:9.8,u:"PIECE",sup:"SYSCO"},{name:"TARTE COCO",p:9.71,u:"PIECE",sup:"METRO"},{name:"TARTE MYRTILLE",p:13.0,u:"PIECE",sup:"GINEYS"},{name:"TARTE POMME FAMILLE",p:7.03,u:"PIECE",sup:"SYSCO"},{name:"TARTE POMMES CARAMEL",p:11.7,u:"PIECE",sup:"CHARLES MARTIN"},{name:"TARTE NORMANDE",p:5.93,u:"PIECE",sup:"GINEYS"},{name:"TARTE TROPEZIENNE",p:13.9,u:"PIECE",sup:"SYSCO"},{name:"TARTELETTE CITRON",p:1.49,u:"PIECE",sup:"GINEYS"},{name:"TIRAMISU",p:8.8,u:"KG",sup:"SYSCO"},{name:"TORTELINI MOZZA PESTO",p:5.5,u:"KG",sup:"SYSCO"},{name:"FEUILLE DE GENOISE",p:2.31,u:"PIECE",sup:"CHARLES MARTIN"},{name:"SALADE DE FRUITS",p:5.59,u:"KG",sup:"CHARLES MARTIN"},{name:"DOS DE MERLU",p:10.08,u:"KG",sup:"CHARLES MARTIN"},{name:"JOUE DE BŒUF",p:10.89,u:"KG",sup:"SYSCO"},{name:"BUTTERNET CUBES",p:2.33,u:"KG",sup:"CHARLES MARTIN"},{name:"EGRENNE DE BŒUF",p:14.01,u:"KG",sup:"SYSCO"}]};
-
-let loc='restaurant', usr='', st={}, hist=[];
-const SYNC_KEY = 'monsigny-';
-const HIST_KEY = 'monsigny-hist-';
-
-function login(){
-  const l = document.getElementById('loc').value;
-  const u = document.getElementById('usr').value || 'Utilisateur';
-  if(!l) { alert('Choisis un lieu!'); return; }
-  loc = l;
-  usr = u;
-  localStorage.setItem('ml', l);
-  localStorage.setItem('mu', u);
-  document.getElementById('auth').style.display = 'none';
-  document.getElementById('app').style.display = 'flex';
-  document.getElementById('locbadge').textContent = l.toUpperCase();
-  loadData();
-  loadHistory();
-}
-
-function logout(){
-  if(confirm('Quitter?')) {
-    document.getElementById('app').style.display = 'none';
-    document.getElementById('auth').style.display = 'flex';
-  }
-}
-
-function switchTab(tab){
-  if(tab === 'inventory') {
-    document.getElementById('inventoryTab').style.display = 'flex';
-    document.getElementById('historyTab').style.display = 'none';
-    document.querySelectorAll('.tab')[0].classList.add('active');
-    document.querySelectorAll('.tab')[1].classList.remove('active');
-  } else {
-    document.getElementById('inventoryTab').style.display = 'none';
-    document.getElementById('historyTab').style.display = 'block';
-    document.querySelectorAll('.tab')[0].classList.remove('active');
-    document.querySelectorAll('.tab')[1].classList.add('active');
-    renderHistory();
-  }
-}
-
-function loadData(){
-  const saved = localStorage.getItem(SYNC_KEY + loc);
-  st = saved ? JSON.parse(saved) : {};
-  render();
-}
-
-function saveData(){
-  localStorage.setItem(SYNC_KEY + loc, JSON.stringify(st));
-}
-
-function loadHistory(){
-  const saved = localStorage.getItem(HIST_KEY + loc);
-  hist = saved ? JSON.parse(saved) : [];
-}
-
-function saveHistory(){
-  localStorage.setItem(HIST_KEY + loc, JSON.stringify(hist));
-}
-
-function saveInventory(){
-  const total = calculateTotal();
-  const now = new Date();
-  const date = now.toLocaleDateString('fr-FR');
-  const month = now.toLocaleDateString('fr-FR', {month:'long', year:'numeric'});
+  // PRODUCTS DATABASE - SEPARATED BY FOOD & BEVERAGES
   
-  // Demander un nom pour l'inventaire
-  const name = prompt('📝 Donne un nom à cet inventaire (optionnel):', date + ' - ' + usr);
-  
-  const inv = {
-    id: Date.now(),
-    name: name || (date + ' - ' + usr),
-    date: date,
-    month: month,
-    time: now.toLocaleTimeString('fr-FR'),
-    user: usr,
-    total: total,
-    items: {}
+  const productsDB = {
+    // FOOD CATEGORY
+    fruits: [
+      { name: 'Aubergine', supplier: 'Cash Fruits', price: 2.39 },
+      { name: 'Avocat', supplier: 'Cash Fruits', price: 0.99 },
+      { name: 'Tomates Cerises Grappe', supplier: 'Cash Fruits', price: 4.99 },
+      { name: 'Citron Vert', supplier: 'Cash Fruits', price: 3.22 },
+      { name: 'Mangue Avion', supplier: 'Cash Fruits', price: 8.99 },
+      { name: 'Fraise 1kg', supplier: 'Cash Fruits', price: 6.33 },
+      { name: 'Menthe Plein Champ', supplier: 'Cash Fruits', price: 0.69 },
+      { name: 'Roquette', supplier: 'Cash Fruits', price: 5.49 },
+      { name: 'Mesclun Niçois', supplier: 'Cash Fruits', price: 5.49 },
+      { name: 'Oignon Blanc', supplier: 'Cash Fruits', price: 1.99 },
+    ],
+    
+    meat: [
+      { name: 'Noix de Veau', supplier: 'Sysco', price: 0 },
+      { name: 'Entrecôte Simmental', supplier: 'Sysco', price: 0 },
+      { name: 'Poulet Fermier', supplier: 'Sysco', price: 0 },
+      { name: 'Paleron', supplier: 'Sysco', price: 0 },
+      { name: 'Côte d\'Agneau', supplier: 'Sysco', price: 0 },
+    ],
+    
+    fish: [
+      { name: 'Crevette 13-15', supplier: 'Sysco', price: 0 },
+      { name: 'Saint-Jacques', supplier: 'Sysco', price: 0 },
+      { name: 'Thon Listao', supplier: 'Sysco', price: 0 },
+      { name: 'Lieu Bière', supplier: 'Sysco', price: 0 },
+      { name: 'Daurade', supplier: 'Sysco', price: 0 },
+    ],
+    
+    dairy: [
+      { name: 'Burrata', supplier: 'Sysco', price: 0 },
+      { name: 'Feta AOP', supplier: 'Sysco', price: 0 },
+      { name: 'Mozzarella', supplier: 'Sysco', price: 0 },
+      { name: 'Brie Meaux', supplier: 'Sysco', price: 0 },
+      { name: 'Bûche Chèvre', supplier: 'Sysco', price: 0 },
+    ],
+    
+    pantry: [
+      { name: 'Huile Olive', supplier: 'Sysco', price: 0 },
+      { name: 'Farine T55', supplier: 'Sysco', price: 0 },
+      { name: 'Linguine', supplier: 'Sysco', price: 0 },
+      { name: 'Tortilla', supplier: 'Sysco', price: 0 },
+      { name: 'Câpres', supplier: 'Sysco', price: 0 },
+      { name: 'Cornichons', supplier: 'Sysco', price: 0 },
+      { name: 'Tahina', supplier: 'Sysco', price: 0 },
+      { name: 'Fond Veau', supplier: 'Sysco', price: 0 },
+      { name: 'Fond Volaille', supplier: 'Sysco', price: 0 },
+    ],
+    
+    // BEVERAGES CATEGORY
+    wines: [
+      { name: 'Château Margaux 2015', supplier: 'France Boissons', price: 0 },
+      { name: 'Domaines Ott Château Léoube', supplier: 'France Boissons', price: 0 },
+      { name: 'Chablis Premier Cru', supplier: 'France Boissons', price: 0 },
+      { name: 'Bordeaux Supérieur', supplier: 'France Boissons', price: 0 },
+      { name: 'Bourgogne Pinot Noir', supplier: 'France Boissons', price: 0 },
+      { name: 'Loire Sauvignon Blanc', supplier: 'France Boissons', price: 0 },
+    ],
+    
+    spirits: [
+      { name: 'Cognac VSOP', supplier: 'France Boissons', price: 0 },
+      { name: 'Armagnac', supplier: 'France Boissons', price: 0 },
+      { name: 'Pastis Ricard', supplier: 'France Boissons', price: 0 },
+      { name: 'Rhum Agricole', supplier: 'France Boissons', price: 0 },
+      { name: 'Liqueur Chartreuse', supplier: 'France Boissons', price: 0 },
+      { name: 'Génépi', supplier: 'France Boissons', price: 0 },
+    ],
+    
+    soft: [
+      { name: 'Perrier 75cl', supplier: 'France Boissons', price: 0 },
+      { name: 'San Pellegrino 1L', supplier: 'France Boissons', price: 0 },
+      { name: 'Jus Orange Frais', supplier: 'France Boissons', price: 0 },
+      { name: 'Jus Citron', supplier: 'France Boissons', price: 0 },
+      { name: 'Jus Raisin', supplier: 'France Boissons', price: 0 },
+      { name: 'Sirop Orgeat', supplier: 'France Boissons', price: 0 },
+    ],
+    
+    coffee: [
+      { name: 'Café Espresso Richard', supplier: 'Cafés Richard', price: 0 },
+      { name: 'Café Noisette', supplier: 'Cafés Richard', price: 0 },
+      { name: 'Thé Noir', supplier: 'Cafés Richard', price: 0 },
+      { name: 'Thé Vert', supplier: 'Cafés Richard', price: 0 },
+      { name: 'Chocolat Chaud', supplier: 'Cafés Richard', price: 0 },
+    ],
   };
   
-  for(const[c,it] of Object.entries(PROD)){
-    inv.items[c] = [];
-    it.forEach(p => {
-      const id = c + ':' + p.name;
-      const d = st[id] || {};
-      const q = d.q || 0;
-      if(q > 0) {
-        inv.items[c].push({
-          name: p.name,
-          qty: q,
-          price: d.p || p.p,
-          supplier: d.sup || '',
-          value: q * (d.p || p.p)
-        });
-      }
-    });
+  let currentLocation = 'restaurant';
+  let inventory = {};
+  
+  // Initialize
+  function initApp() {
+    loadInventory();
+    renderAllProducts();
+    updateStats();
   }
   
-  hist.unshift(inv);
-  saveHistory();
-  alert('✅ Inventaire enregistré: "' + inv.name + '"');
-  
-  // Auto-export JSON
-  const backup = {loc: loc, ts: now.toISOString(), inv: st, history: hist};
-  const b = new Blob([JSON.stringify(backup, null, 2)], {type: 'application/json'});
-  const l = document.createElement('a');
-  l.href = URL.createObjectURL(b);
-  l.download = 'monsigny-' + loc + '-backup-' + now.toISOString().split('T')[0] + '.json';
-  l.click();
-}
-
-function renderHistory(){
-  let h = '<h3 style="color:#d4a853; margin-bottom:20px;">📜 Historique des inventaires</h3>';
-  
-  if(!hist.length) {
-    h += '<div style="color:#808080;">Aucun inventaire enregistré</div>';
-    document.getElementById('histContent').innerHTML = h;
-    return;
+  function loadInventory() {
+    const key = `monsigny-inventory-${currentLocation}`;
+    const saved = localStorage.getItem(key);
+    inventory = saved ? JSON.parse(saved) : {};
   }
   
-  // Grouper par mois
-  const byMonth = {};
-  hist.forEach(inv => {
-    if(!byMonth[inv.month]) byMonth[inv.month] = [];
-    byMonth[inv.month].push(inv);
-  });
+  function saveInventory() {
+    const key = `monsigny-inventory-${currentLocation}`;
+    localStorage.setItem(key, JSON.stringify(inventory));
+  }
   
-  for(const[month, invs] of Object.entries(byMonth)) {
-    h += '<div style="margin-top:20px;"><h4 style="color:#d4a853; margin-bottom:10px;">📅 ' + month + '</h4>';
-    invs.forEach((inv, idx) => {
-      const itemCount = Object.values(inv.items).reduce((sum, arr) => sum + arr.length, 0);
-      const histIdx = hist.indexOf(inv);
-      h += `<div style="background:#242424; padding:12px; margin:8px 0; border-radius:4px; border-left:3px solid #d4a853;">
-        <div style="display:flex; justify-content:space-between; align-items:start; gap:10px;">
-          <div style="flex:1; cursor:pointer;" onclick="viewInventory(${histIdx})">
-            <div style="color:#d4a853; font-weight:600;">${inv.name}</div>
-            <div style="color:#808080; font-size:12px; margin-top:4px;">📅 ${inv.date} à ${inv.time} • 👤 ${inv.user} • ${itemCount} produits • 💰 ${inv.total.toFixed(2)}€</div>
-          </div>
-          <div style="display:flex; gap:4px;">
-            <button onclick="renameInventory(${histIdx})" style="background:#5b9cf6; color:#fff; border:none; padding:6px 10px; border-radius:4px; cursor:pointer; font-size:11px;">✏️ Renommer</button>
-            <button onclick="deleteInventory(${histIdx})" style="background:#ef4444; color:#fff; border:none; padding:6px 10px; border-radius:4px; cursor:pointer; font-size:11px;">🗑️ Supprimer</button>
+  function renderAllProducts() {
+    // FOOD
+    renderProducts('food-fruits', productsDB.fruits);
+    renderProducts('food-meat', productsDB.meat);
+    renderProducts('food-dairy', productsDB.dairy);
+    renderProducts('food-pantry', productsDB.pantry);
+    
+    // BEVERAGES
+    renderProducts('bev-wines', productsDB.wines);
+    renderProducts('bev-spirits', productsDB.spirits);
+    renderProducts('bev-soft', productsDB.soft);
+    renderProducts('bev-coffee', productsDB.coffee);
+  }
+  
+  function renderProducts(containerId, products) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    container.innerHTML = products.map(p => {
+      const key = `${currentLocation}-${p.name}`;
+      const qty = inventory[key] || 0;
+      
+      return `
+        <div class="product-card">
+          <div class="product-name">${p.name}</div>
+          <div class="product-info">${p.supplier}</div>
+          <div class="product-supplier">${p.price ? '€' + p.price : 'Price TBD'}</div>
+          
+          <div class="product-qty-control">
+            <button class="qty-btn" onclick="updateQty('${currentLocation}-${p.name}', -1)">−</button>
+            <input type="number" class="qty-input" id="qty-${currentLocation}-${p.name}" 
+                   value="${qty}" min="0" onchange="setQty('${currentLocation}-${p.name}', this.value)">
+            <button class="qty-btn" onclick="updateQty('${currentLocation}-${p.name}', 1)">+</button>
           </div>
         </div>
-      </div>`;
-    });
-    h += '</div>';
+      `;
+    }).join('');
   }
   
-  document.getElementById('histContent').innerHTML = h;
-}
-
-function viewInventory(idx){
-  const inv = hist[idx];
-  let detail = '<h3 style="color:#d4a853; margin-bottom:20px;">📊 ' + inv.name + '</h3>';
-  detail += '<p style="color:#808080; margin-bottom:20px;">👤 ' + inv.user + ' • 📅 ' + inv.date + ' • 💰 Total: <strong style="color:#4ade80">' + inv.total.toFixed(2) + '€</strong></p>';
-  
-  for(const[cat, items] of Object.entries(inv.items)) {
-    if(!items.length) continue;
-    detail += '<div style="margin-top:15px;"><h4 style="color:#d4a853;">' + cat + '</h4>';
-    items.forEach(item => {
-      detail += `<div style="background:#242424; padding:8px; margin:4px 0; border-radius:4px; font-size:12px;">
-        <div><strong>${item.name}</strong> - ${item.qty} × ${item.price.toFixed(2)}€ = <strong style="color:#4ade80">${item.value.toFixed(2)}€</strong></div>
-        <div style="color:#808080; margin-top:2px;">Fournisseur: ${item.supplier || '—'}</div>
-      </div>`;
-    });
-    detail += '</div>';
+  function updateQty(key, delta) {
+    const current = parseInt(inventory[key]) || 0;
+    const newQty = Math.max(0, current + delta);
+    inventory[key] = newQty;
+    saveInventory();
+    document.getElementById(`qty-${key}`).value = newQty;
+    updateStats();
   }
   
-  detail += '<div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;"><button onclick="switchTab(\'history\')" class="btn-accent" style="flex:1; padding:10px; min-width:120px;">← Retour</button><button onclick="renameInventory(' + hist.indexOf(inv) + ')" style="background:#5b9cf6; color:#fff; border:none; padding:10px; border-radius:4px; cursor:pointer; flex:1; min-width:120px;">✏️ Renommer</button><button onclick="moveInventoryModal(' + hist.indexOf(inv) + ')" style="background:#f97316; color:#fff; border:none; padding:10px; border-radius:4px; cursor:pointer; flex:1; min-width:120px;">↔️ Déplacer</button><button onclick="exportHistoryPDF(' + hist.indexOf(inv) + ')" style="background:#d4a853; color:#1a1000; border:none; padding:10px; border-radius:4px; cursor:pointer; flex:1; min-width:120px;">📄 PDF</button></div>';
-  
-  document.getElementById('histContent').innerHTML = detail;
-}
-
-function renameInventory(idx){
-  const inv = hist[idx];
-  const newName = prompt('📝 Nouveau nom pour cet inventaire:', inv.name);
-  if(newName && newName.trim()) {
-    hist[idx].name = newName.trim();
-    saveHistory();
-    renderHistory();
-    alert('✅ Inventaire renommé en "' + newName + '"');
-  }
-}
-
-function deleteInventory(idx){
-  const inv = hist[idx];
-  if(confirm('❌ Supprimer l\'inventaire "' + inv.name + '" ?')) {
-    hist.splice(idx, 1);
-    saveHistory();
-    renderHistory();
-    alert('✅ Inventaire supprimé');
-  }
-}
-
-function moveInventoryModal(idx){
-  const inv = hist[idx];
-  const locations = ['restaurant', 'rooftop'];
-  let otherLocs = locations.filter(l => l !== loc);
-  
-  let html = '<div style="background:#1a1a1a; border:1px solid #303030; padding:20px; border-radius:8px; max-width:400px;">';
-  html += '<h3 style="color:#d4a853; margin-bottom:20px;">↔️ Déplacer cet inventaire</h3>';
-  html += '<p style="color:#808080; margin-bottom:20px;">Inventaire actuel: <strong style="color:#d4a853;">' + loc.toUpperCase() + '</strong></p>';
-  html += '<p style="color:#c0c0c0; margin-bottom:20px;">Vers quel lieu?</p>';
-  
-  otherLocs.forEach(destLoc => {
-    html += '<button onclick="moveInventoryTo(' + idx + ', \'' + destLoc + '\')" style="display:block; width:100%; background:#f97316; color:#fff; border:none; padding:12px; margin-bottom:10px; border-radius:4px; cursor:pointer; font-weight:600;">📍 ' + destLoc.toUpperCase() + '</button>';
-  });
-  
-  html += '<button onclick="switchTab(\'history\')" style="display:block; width:100%; background:#303030; color:#e8e8e8; border:none; padding:10px; border-radius:4px; cursor:pointer;">❌ Annuler</button>';
-  html += '</div>';
-  
-  document.getElementById('histContent').innerHTML = html;
-}
-
-function moveInventoryTo(idx, destLoc){
-  const inv = hist[idx];
-  
-  // Vérifier si un inventaire avec le même nom existe à la destination
-  const destHist = JSON.parse(localStorage.getItem(HIST_KEY + destLoc) || '[]');
-  const exists = destHist.some(h => h.name === inv.name);
-  
-  if(exists) {
-    if(!confirm('⚠️ Un inventaire portant le même nom existe déjà à ' + destLoc.toUpperCase() + '. Continuer ?')) {
-      return;
-    }
+  function setQty(key, value) {
+    const qty = Math.max(0, parseInt(value) || 0);
+    inventory[key] = qty;
+    saveInventory();
+    updateStats();
   }
   
-  // Retirer de l'historique actuel
-  hist.splice(idx, 1);
-  saveHistory();
-  
-  // Ajouter à l'historique de la destination
-  destHist.unshift(inv);
-  localStorage.setItem(HIST_KEY + destLoc, JSON.stringify(destHist));
-  
-  alert('✅ Inventaire "' + inv.name + '" déplacé vers ' + destLoc.toUpperCase());
-  renderHistory();
-}
-
-function render(){
-  const s = document.getElementById('search').value.toUpperCase();
-  let h = '';
-  for(const[c,it] of Object.entries(PROD)){
-    const f = it.filter(p => !s || p.name.includes(s));
-    if(!f.length)continue;
-    h += '<div class="section">'+c+'</div>';
-    f.forEach((p,idx) => {
-      const id = c + ':' + p.name;
-      const d = st[id] || {};
-      const q = d.q || 0;
-      const pr = d.p || p.p;
-      const sup = d.sup || '';
-      const val = q * pr;
-      h += '<div class="product"><div><div class="product-name">'+p.name+'</div><div class="product-unit">'+p.u+'</div></div><input type="text" value="'+pr.toFixed(2)+'" onchange="setPrice(\''+id+'\',this.value)" style="width:80px; text-align:right"/><input type="text" value="'+q+'" onchange="setQty(\''+id+'\',this.value)" style="width:80px"/><div style="text-align:right">'+val.toFixed(2)+'€</div><input type="text" value="'+sup+'" onchange="setSupplier(\''+id+'\',this.value)" placeholder="Fournisseur" style="width:100px"/><button onclick="startMove(\''+c+'\',\''+p.name+'\')" style="background:#5b9cf6; color:#fff; border:none; cursor:pointer; padding:6px 8px; border-radius:4px; font-size:11px;">↔️</button></div>';
-    });
-  }
-  document.getElementById('cont').innerHTML = h;
-  document.getElementById('totalBtn').textContent = '💰 TOTAL: ' + calculateTotal().toFixed(2) + '€';
-}
-
-function calculateTotal(){
-  let total = 0;
-  for(const[c,it] of Object.entries(PROD)){
-    it.forEach(p => {
-      const id = c + ':' + p.name;
-      const d = st[id] || {};
-      const q = d.q || 0;
-      const pr = d.p || p.p;
-      total += q * pr;
-    });
-  }
-  return total;
-}
-
-function resetInventory(){
-  if(confirm('🔄 Remettre à ZÉRO toutes les quantités ? Cette action ne peut pas être annulée!')) {
-    st = {};
-    saveData();
-    render();
-    alert('✅ Inventaire réinitialisé! Tu peux commencer un nouveau.');
-  }
-}
-
-function setQty(id, val){
-  const q = parseFloat(val.replace(',','.')) || 0;
-  st[id] = st[id] || {};
-  st[id].q = q;
-  saveData();
-  render();
-}
-
-function setPrice(id, val){
-  const p = parseFloat(val.replace(',','.')) || 0;
-  st[id] = st[id] || {};
-  st[id].p = p;
-  saveData();
-  render();
-}
-
-function setSupplier(id, val){
-  st[id] = st[id] || {};
-  st[id].sup = val.toUpperCase();
-  saveData();
-}
-
-function toggleAdd(){
-  const m = document.getElementById('addModal');
-  m.style.display = m.style.display === 'none' ? 'flex' : 'none';
-}
-
-function addProd(){
-  const cat = document.getElementById('addCat').value;
-  const name = document.getElementById('addName').value.toUpperCase();
-  const unit = document.getElementById('addUnit').value;
-  const price = parseFloat((document.getElementById('addPrice').value).replace(',','.'));
-  
-  if(!cat || !name || !unit || !price) { alert('Remplis tous les champs!'); return; }
-  
-  if(!PROD[cat]) PROD[cat] = [];
-  PROD[cat].push({name: name, p: price, u: unit, sup: ''});
-  
-  document.getElementById('addCat').value = '';
-  document.getElementById('addName').value = '';
-  document.getElementById('addUnit').value = '';
-  document.getElementById('addPrice').value = '';
-  
-  toggleAdd();
-  alert('✅ Produit ajouté!');
-  render();
-}
-
-let moveData = {};
-function startMove(cat, name){
-  moveData = {cat: cat, name: name};
-  document.getElementById('moveProdName').textContent = name + ' (de ' + cat + ')';
-  document.getElementById('moveCat').value = '';
-  document.getElementById('moveModal').style.display = 'flex';
-}
-
-function confirmMove(){
-  const newCat = document.getElementById('moveCat').value;
-  if(!newCat) { alert('Choisis une catégorie!'); return; }
-  if(newCat === moveData.cat) { alert('Sélectionne une catégorie différente!'); return; }
-  
-  const idx = PROD[moveData.cat].findIndex(p => p.name === moveData.name);
-  if(idx !== -1) {
-    const prod = PROD[moveData.cat][idx];
-    PROD[moveData.cat].splice(idx, 1);
-    if(!PROD[newCat]) PROD[newCat] = [];
-    PROD[newCat].push(prod);
+  function updateStats() {
+    const allProducts = [...productsDB.fruits, ...productsDB.meat, ...productsDB.fish, 
+                         ...productsDB.dairy, ...productsDB.pantry];
+    const allBeverages = [...productsDB.wines, ...productsDB.spirits, 
+                          ...productsDB.soft, ...productsDB.coffee];
     
-    const oldId = moveData.cat + ':' + moveData.name;
-    const newId = newCat + ':' + moveData.name;
-    if(st[oldId]) {
-      st[newId] = st[oldId];
-      delete st[oldId];
-      saveData();
-    }
+    document.getElementById('total-food').textContent = allProducts.length;
+    document.getElementById('total-beverages').textContent = allBeverages.length;
+    document.getElementById('total-products').textContent = allProducts.length + allBeverages.length;
+  }
+  
+  function showTab(tabName) {
+    document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+    document.getElementById(tabName).classList.add('active');
     
-    cancelMove();
-    alert('✅ Produit déplacé!');
-    render();
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
   }
-}
-
-function cancelMove(){
-  document.getElementById('moveModal').style.display = 'none';
-  moveData = {};
-}
-
-function exp(){
-  const backup = {loc: loc, ts: new Date().toISOString(), inv: st, history: hist};
-  const b = new Blob([JSON.stringify(backup, null, 2)], {type: 'application/json'});
-  const l = document.createElement('a');
-  l.href = URL.createObjectURL(b);
-  l.download = 'monsigny-' + loc + '.json';
-  l.click();
-}
-
-function imp(e){
-  const f = e.target.files[0];
-  if(!f)return;
-  const r = new FileReader();
-  r.onload = (ev) => {
-    try {
-      const d = JSON.parse(ev.target.result);
-      const fileLoc = d.loc || loc;
-      const data = d.inv || d.inventory || d;
-      
-      if(data && typeof data === 'object') {
-        localStorage.setItem(SYNC_KEY + fileLoc, JSON.stringify(data));
-        if(d.history) {
-          localStorage.setItem(HIST_KEY + fileLoc, JSON.stringify(d.history));
-          loadHistory();
-        }
-        if(loc === fileLoc) {
-          st = data;
-          render();
-        }
-        alert('✅ Importé avec succès!');
-      }
-    } catch(er) { alert('❌ Erreur: '+er.message); }
-  };
-  r.readAsText(f);
-  document.getElementById('fi').value = '';
-}
-
-function csv(){
-  let c = 'Lieu,Catégorie,Produit,Unité,Prix,Qty,Valeur,Fournisseur\n';
-  for(const[cat,it] of Object.entries(PROD)){
-    it.forEach(p => {
-      const id = cat + ':' + p.name;
-      const d = st[id] || {};
-      const q = d.q || 0;
-      const price = d.p || p.p;
-      const sup = d.sup || '';
-      const v = q * price;
-      c += '"'+loc+'","'+cat+'","'+p.name+'","'+p.u+'",'+price+','+q+','+v.toFixed(2)+',"'+sup+'"\n';
-    });
+  
+  function changeLocation() {
+    currentLocation = document.getElementById('location-select').value;
+    loadInventory();
+    renderAllProducts();
+    updateStats();
   }
-  const b = new Blob([c], {type: 'text/csv'});
-  const l = document.createElement('a');
-  l.href = URL.createObjectURL(b);
-  l.download = 'monsigny-' + loc + '.csv';
-  l.click();
-}
-
-const s = localStorage.getItem('ml');
-if(s) {
-  document.getElementById('loc').value = s;
-  document.getElementById('usr').value = localStorage.getItem('mu');
-}
+  
+  // Start app
+  initApp();
 </script>
 
 <script>
-function exportPDF(){
-  const now = new Date();
-  const dateStr = now.toLocaleDateString('fr-FR');
-  const timeStr = now.toLocaleTimeString('fr-FR');
-  const total = calculateTotal();
-  
-  let html = `
-  <div style="font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5;">
-    <div style="max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-      
-      <!-- HEADER -->
-      <div style="text-align: center; margin-bottom: 40px; border-bottom: 3px solid #d4a853; padding-bottom: 20px;">
-        <h1 style="color: #d4a853; font-size: 32px; margin: 0;">📦 INVENTAIRE MONSIGNY</h1>
-        <p style="color: #666; font-size: 14px; margin: 10px 0 0 0;">${loc.toUpperCase()}</p>
-      </div>
-      
-      <!-- INFO -->
-      <div style="background: #f9f9f9; padding: 15px; border-radius: 4px; margin-bottom: 30px; border-left: 4px solid #d4a853;">
-        <p style="margin: 5px 0; color: #333;"><strong>📅 Date:</strong> ${dateStr}</p>
-        <p style="margin: 5px 0; color: #333;"><strong>⏰ Heure:</strong> ${timeStr}</p>
-        <p style="margin: 5px 0; color: #333;"><strong>👤 Responsable:</strong> ${usr}</p>
-      </div>
-      
-      <!-- PRODUCTS -->
-      <div style="margin-bottom: 30px;">
-        <h2 style="color: #d4a853; font-size: 18px; margin-top: 0;">Détail des produits</h2>
-  `;
-  
-  for(const[cat, it] of Object.entries(PROD)){
-    const catItems = it.filter(p => {
-      const id = cat + ':' + p.name;
-      const d = st[id] || {};
-      return (d.q || 0) > 0;
-    });
-    
-    if(!catItems.length) continue;
-    
-    html += `
-      <div style="margin-bottom: 20px;">
-        <h3 style="color: #d4a853; font-size: 14px; margin: 10px 0; padding-bottom: 8px; border-bottom: 2px solid #eee;">${cat}</h3>
-        <table style="width: 100%; border-collapse: collapse;">
-          <thead>
-            <tr style="background: #f0f0f0;">
-              <th style="padding: 10px; text-align: left; font-weight: bold; color: #333; border: 1px solid #ddd;">Produit</th>
-              <th style="padding: 10px; text-align: center; font-weight: bold; color: #333; border: 1px solid #ddd;">Unité</th>
-              <th style="padding: 10px; text-align: right; font-weight: bold; color: #333; border: 1px solid #ddd;">Qty</th>
-              <th style="padding: 10px; text-align: right; font-weight: bold; color: #333; border: 1px solid #ddd;">Prix</th>
-              <th style="padding: 10px; text-align: right; font-weight: bold; color: #333; border: 1px solid #ddd;">Total</th>
-              <th style="padding: 10px; text-align: left; font-weight: bold; color: #333; border: 1px solid #ddd;">Fournisseur</th>
-            </tr>
-          </thead>
-          <tbody>
-    `;
-    
-    catItems.forEach(p => {
-      const id = cat + ':' + p.name;
-      const d = st[id] || {};
-      const q = d.q || 0;
-      const pr = d.p || p.p;
-      const sup = d.sup || '—';
-      const val = q * pr;
-      
-      html += `
-        <tr style="border-bottom: 1px solid #ddd;">
-          <td style="padding: 8px; border: 1px solid #ddd;">${p.name}</td>
-          <td style="padding: 8px; text-align: center; border: 1px solid #ddd;">${p.u}</td>
-          <td style="padding: 8px; text-align: right; border: 1px solid #ddd;">${q.toFixed(2)}</td>
-          <td style="padding: 8px; text-align: right; border: 1px solid #ddd;">${pr.toFixed(2)}€</td>
-          <td style="padding: 8px; text-align: right; border: 1px solid #ddd; font-weight: bold; color: #d4a853;">${val.toFixed(2)}€</td>
-          <td style="padding: 8px; border: 1px solid #ddd;">${sup}</td>
-        </tr>
-      `;
-    });
-    
-    html += `
-          </tbody>
-        </table>
-      </div>
-    `;
+  // Service Worker Registration
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js').catch(err => console.log('SW error:', err));
   }
-  
-  html += `
-      </div>
-      
-      <!-- TOTAL -->
-      <div style="background: linear-gradient(135deg, #d4a853 0%, #c89d3c 100%); color: white; padding: 20px; border-radius: 4px; text-align: center; margin-top: 30px;">
-        <h2 style="margin: 0; font-size: 24px;">💰 MONTANT TOTAL</h2>
-        <p style="margin: 10px 0 0 0; font-size: 36px; font-weight: bold;">${total.toFixed(2)}€</p>
-      </div>
-      
-      <!-- FOOTER -->
-      <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; color: #999; font-size: 12px;">
-        <p>Inventaire généré le ${dateStr} à ${timeStr}</p>
-        <p>Monsigny Rooftop - Système d'inventaire</p>
-      </div>
-      
-    </div>
-  </div>
-  `;
-  
-  const element = document.createElement('div');
-  element.innerHTML = html;
-  
-  const opt = {
-    margin: 10,
-    filename: 'inventaire-' + loc + '-' + now.toISOString().split('T')[0] + '.pdf',
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
-  };
-  
-  html2pdf().set(opt).from(element).save();
-}
-
-function exportHistoryPDF(idx){
-  const inv = hist[idx];
-  const total = inv.total;
-  const locName = loc.toUpperCase();
-  
-  let html = `
-  <div style="font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5;">
-    <div style="max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-      
-      <!-- HEADER -->
-      <div style="text-align: center; margin-bottom: 40px; border-bottom: 3px solid #d4a853; padding-bottom: 20px;">
-        <h1 style="color: #d4a853; font-size: 32px; margin: 0;">📦 INVENTAIRE MONSIGNY</h1>
-        <p style="color: #666; font-size: 14px; margin: 10px 0 0 0;">${locName}</p>
-      </div>
-      
-      <!-- INFO -->
-      <div style="background: #f9f9f9; padding: 15px; border-radius: 4px; margin-bottom: 30px; border-left: 4px solid #d4a853;">
-        <p style="margin: 5px 0; color: #333;"><strong>📝 Nom:</strong> ${inv.name}</p>
-        <p style="margin: 5px 0; color: #333;"><strong>📅 Date:</strong> ${inv.date}</p>
-        <p style="margin: 5px 0; color: #333;"><strong>⏰ Heure:</strong> ${inv.time}</p>
-        <p style="margin: 5px 0; color: #333;"><strong>👤 Responsable:</strong> ${inv.user}</p>
-      </div>
-      
-      <!-- PRODUCTS -->
-      <div style="margin-bottom: 30px;">
-        <h2 style="color: #d4a853; font-size: 18px; margin-top: 0;">Détail des produits</h2>
-  `;
-  
-  for(const[cat, items] of Object.entries(inv.items)) {
-    if(!items.length) continue;
-    
-    html += `
-      <div style="margin-bottom: 20px;">
-        <h3 style="color: #d4a853; font-size: 14px; margin: 10px 0; padding-bottom: 8px; border-bottom: 2px solid #eee;">${cat}</h3>
-        <table style="width: 100%; border-collapse: collapse;">
-          <thead>
-            <tr style="background: #f0f0f0;">
-              <th style="padding: 10px; text-align: left; font-weight: bold; color: #333; border: 1px solid #ddd;">Produit</th>
-              <th style="padding: 10px; text-align: right; font-weight: bold; color: #333; border: 1px solid #ddd;">Qty</th>
-              <th style="padding: 10px; text-align: right; font-weight: bold; color: #333; border: 1px solid #ddd;">Prix</th>
-              <th style="padding: 10px; text-align: right; font-weight: bold; color: #333; border: 1px solid #ddd;">Total</th>
-              <th style="padding: 10px; text-align: left; font-weight: bold; color: #333; border: 1px solid #ddd;">Fournisseur</th>
-            </tr>
-          </thead>
-          <tbody>
-    `;
-    
-    items.forEach(item => {
-      html += `
-        <tr style="border-bottom: 1px solid #ddd;">
-          <td style="padding: 8px; border: 1px solid #ddd;">${item.name}</td>
-          <td style="padding: 8px; text-align: right; border: 1px solid #ddd;">${item.qty.toFixed(2)}</td>
-          <td style="padding: 8px; text-align: right; border: 1px solid #ddd;">${item.price.toFixed(2)}€</td>
-          <td style="padding: 8px; text-align: right; border: 1px solid #ddd; font-weight: bold; color: #d4a853;">${item.value.toFixed(2)}€</td>
-          <td style="padding: 8px; border: 1px solid #ddd;">${item.supplier || '—'}</td>
-        </tr>
-      `;
-    });
-    
-    html += `
-          </tbody>
-        </table>
-      </div>
-    `;
-  }
-  
-  // MONTANT TOTAL DEPUIS L'INVENTAIRE SAUVEGARDÉ
-  html += `
-      </div>
-      
-      <!-- TOTAL -->
-      <div style="background: linear-gradient(135deg, #d4a853 0%, #c89d3c 100%); color: white; padding: 20px; border-radius: 4px; text-align: center; margin-top: 30px;">
-        <h2 style="margin: 0; font-size: 24px;">💰 MONTANT TOTAL</h2>
-        <p style="margin: 10px 0 0 0; font-size: 36px; font-weight: bold;">${total.toFixed(2)}€</p>
-      </div>
-      
-      <!-- FOOTER -->
-      <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; color: #999; font-size: 12px;">
-        <p>Inventaire: ${inv.name}</p>
-        <p>Monsigny - Système d'inventaire</p>
-      </div>
-      
-    </div>
-  </div>
-  `;
-  
-  const element = document.createElement('div');
-  element.innerHTML = html;
-  
-  const opt = {
-    margin: 10,
-    filename: inv.name.replace(/\s+/g, '_') + '.pdf',
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
-  };
-  
-  html2pdf().set(opt).from(element).save();
-}
-
-// Enregistrer le service worker pour le mode offline
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js')
-      .then(registration => {
-        console.log('✅ Service Worker enregistré:', registration);
-      })
-      .catch(error => {
-        console.log('Service Worker enregistrement échoué:', error);
-      });
-  });
-}
-</script>
 </script>
 
 </body>
