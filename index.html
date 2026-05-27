@@ -422,9 +422,173 @@ function viewInventory(idx){
     detail += '</div>';
   }
   
-  detail += '<div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;"><button onclick="switchTab(\'history\')" class="btn-accent" style="flex:1; padding:10px; min-width:120px;">← Retour</button><button onclick="resumeInventory(' + hist.indexOf(inv) + ')" style="background:#4ade80; color:#000; border:none; padding:10px; border-radius:4px; cursor:pointer; flex:1; min-width:120px; font-weight:600;">🔄 Reprendre</button><button onclick="renameInventory(' + hist.indexOf(inv) + ')" style="background:#5b9cf6; color:#fff; border:none; padding:10px; border-radius:4px; cursor:pointer; flex:1; min-width:120px;">✏️ Renommer</button><button onclick="moveInventoryModal(' + hist.indexOf(inv) + ')" style="background:#f97316; color:#fff; border:none; padding:10px; border-radius:4px; cursor:pointer; flex:1; min-width:120px;">↔️ Déplacer</button><button onclick="exportHistoryPDF(' + hist.indexOf(inv) + ')" style="background:#d4a853; color:#1a1000; border:none; padding:10px; border-radius:4px; cursor:pointer; flex:1; min-width:120px;">📄 PDF</button></div>';
+  detail += '<div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;"><button onclick="switchTab(\'history\')" class="btn-accent" style="flex:1; padding:10px; min-width:120px;">← Retour</button><button onclick="editHistoryInventory(' + hist.indexOf(inv) + ')" style="background:#a855f7; color:#fff; border:none; padding:10px; border-radius:4px; cursor:pointer; flex:1; min-width:120px; font-weight:600;">🛠️ Modifier</button><button onclick="resumeInventory(' + hist.indexOf(inv) + ')" style="background:#4ade80; color:#000; border:none; padding:10px; border-radius:4px; cursor:pointer; flex:1; min-width:120px; font-weight:600;">🔄 Reprendre</button><button onclick="renameInventory(' + hist.indexOf(inv) + ')" style="background:#5b9cf6; color:#fff; border:none; padding:10px; border-radius:4px; cursor:pointer; flex:1; min-width:120px;">✏️ Renommer</button><button onclick="moveInventoryModal(' + hist.indexOf(inv) + ')" style="background:#f97316; color:#fff; border:none; padding:10px; border-radius:4px; cursor:pointer; flex:1; min-width:120px;">↔️ Déplacer</button><button onclick="exportHistoryPDF(' + hist.indexOf(inv) + ')" style="background:#d4a853; color:#1a1000; border:none; padding:10px; border-radius:4px; cursor:pointer; flex:1; min-width:120px;">📄 PDF</button></div>';
   
   document.getElementById('histContent').innerHTML = detail;
+}
+
+// ===== ÉDITION D'INVENTAIRE HISTORIQUE =====
+let editingHistIdx = null;
+let editingItems = null; // copie de travail des items
+
+function editHistoryInventory(idx){
+  editingHistIdx = idx;
+  // Cloner les items pour ne pas modifier l'original avant validation
+  editingItems = JSON.parse(JSON.stringify(hist[idx].items));
+  renderHistoryEdit();
+}
+
+function renderHistoryEdit(){
+  const inv = hist[editingHistIdx];
+  let h = '<h3 style="color:#a855f7; margin-bottom:10px;">🛠️ Modification : ' + inv.name + '</h3>';
+  h += '<p style="color:#808080; margin-bottom:15px; font-size:12px;">Modifie les quantités, prix, ou supprime/ajoute des produits. Clique "💾 Enregistrer" pour valider, ou "❌ Annuler" pour abandonner.</p>';
+  
+  // Calcul du total en temps réel
+  let total = 0;
+  for(const cat in editingItems) {
+    editingItems[cat].forEach(it => {
+      total += (it.qty || 0) * (it.price || 0);
+    });
+  }
+  
+  h += '<div id="editTotalDisplay" style="position:sticky; top:0; background:#1a1a1a; padding:10px; margin-bottom:15px; border:2px solid #a855f7; border-radius:6px; z-index:10;">';
+  h += '<strong style="color:#4ade80; font-size:16px;">💰 Total: ' + total.toFixed(2) + '€</strong>';
+  h += ' <button onclick="addProductToHistEdit()" style="background:#4ade80; color:#000; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:600; margin-left:10px;">➕ Ajouter un produit</button>';
+  h += '</div>';
+  
+  // Ordre des catégories
+  const catOrder = ['VINS / BIÈRES', 'SPIRITUEUX', 'SOFTS', 'SIROPS / PUREES', 'CAFETERIE',
+    'FRUITS / LEGUMES', 'VIANDE / VOLAILLE', 'POISSON', 'BOF', 'EPICERIE', 'PATISSERIE', 'CONGELATEUR', 'CUISINE'];
+  
+  for(const cat of catOrder) {
+    if(!editingItems[cat] || !editingItems[cat].length) continue;
+    h += '<div style="margin-top:15px;"><h4 style="color:#d4a853; margin-bottom:8px;">' + cat + '</h4>';
+    editingItems[cat].forEach((item, i) => {
+      const val = (item.qty || 0) * (item.price || 0);
+      h += '<div style="background:#242424; padding:10px; margin:6px 0; border-radius:6px; display:grid; grid-template-columns: 2fr 70px 80px 90px 1fr 30px; gap:8px; align-items:center; font-size:12px;">';
+      h += '<input type="text" value="' + item.name.replace(/"/g, '&quot;') + '" onchange="updateHistEditItem(\'' + cat + '\',' + i + ',\'name\',this.value)" style="font-weight:600; padding:6px;">';
+      h += '<input type="text" value="' + (item.qty || 0) + '" onchange="updateHistEditItem(\'' + cat + '\',' + i + ',\'qty\',this.value)" placeholder="Qté" style="text-align:right; padding:6px;">';
+      h += '<input type="text" value="' + (item.price || 0).toFixed(2) + '" onchange="updateHistEditItem(\'' + cat + '\',' + i + ',\'price\',this.value)" placeholder="Prix" style="text-align:right; padding:6px;">';
+      h += '<div style="text-align:right; color:#4ade80; font-weight:600;">' + val.toFixed(2) + '€</div>';
+      h += '<input type="text" value="' + (item.supplier || '').replace(/"/g, '&quot;') + '" onchange="updateHistEditItem(\'' + cat + '\',' + i + ',\'supplier\',this.value)" placeholder="Fournisseur" style="padding:6px;">';
+      h += '<button onclick="removeHistEditItem(\'' + cat + '\',' + i + ')" style="background:#ef4444; color:#fff; border:none; cursor:pointer; padding:6px 8px; border-radius:4px; font-size:11px;">❌</button>';
+      h += '</div>';
+    });
+    h += '</div>';
+  }
+  
+  h += '<div style="margin-top:30px; display:flex; gap:10px; position:sticky; bottom:0; background:#0f0f0f; padding:15px 0;">';
+  h += '<button onclick="saveHistoryEdit()" style="background:#4ade80; color:#000; border:none; padding:14px; border-radius:6px; cursor:pointer; flex:1; font-weight:700; font-size:14px;">💾 Enregistrer les modifications</button>';
+  h += '<button onclick="cancelHistoryEdit()" style="background:#ef4444; color:#fff; border:none; padding:14px; border-radius:6px; cursor:pointer; flex:1; font-weight:700; font-size:14px;">❌ Annuler</button>';
+  h += '</div>';
+  
+  document.getElementById('histContent').innerHTML = h;
+}
+
+function updateHistEditItem(cat, i, field, value){
+  if(field === 'qty' || field === 'price') {
+    value = parseFloat(String(value).replace(',', '.')) || 0;
+  }
+  editingItems[cat][i][field] = value;
+  // Recalculer la value et rafraîchir
+  editingItems[cat][i].value = (editingItems[cat][i].qty || 0) * (editingItems[cat][i].price || 0);
+  renderHistoryEdit();
+}
+
+function removeHistEditItem(cat, i){
+  if(!confirm('Supprimer "' + editingItems[cat][i].name + '" de cet inventaire ?')) return;
+  editingItems[cat].splice(i, 1);
+  renderHistoryEdit();
+}
+
+function addProductToHistEdit(){
+  // Liste des catégories disponibles
+  const cats = ['VINS / BIÈRES', 'SPIRITUEUX', 'SOFTS', 'SIROPS / PUREES', 'CAFETERIE',
+    'FRUITS / LEGUMES', 'VIANDE / VOLAILLE', 'POISSON', 'BOF', 'EPICERIE', 'PATISSERIE', 'CONGELATEUR'];
+  
+  let catList = cats.map((c, i) => (i+1) + '. ' + c).join('\n');
+  const catNum = prompt('➕ Ajouter un produit\n\nChoisis la catégorie (entre le numéro):\n\n' + catList);
+  if(!catNum) return;
+  
+  const catIdx = parseInt(catNum) - 1;
+  if(catIdx < 0 || catIdx >= cats.length) {
+    alert('Numéro invalide');
+    return;
+  }
+  const cat = cats[catIdx];
+  
+  const name = prompt('Nom du produit:');
+  if(!name || !name.trim()) return;
+  
+  const qty = prompt('Quantité:', '1');
+  if(qty === null) return;
+  
+  const price = prompt('Prix unitaire (€):', '0');
+  if(price === null) return;
+  
+  const supplier = prompt('Fournisseur (optionnel):', '');
+  if(supplier === null) return;
+  
+  const qtyNum = parseFloat(String(qty).replace(',', '.')) || 0;
+  const priceNum = parseFloat(String(price).replace(',', '.')) || 0;
+  
+  if(!editingItems[cat]) editingItems[cat] = [];
+  editingItems[cat].push({
+    name: name.trim(),
+    qty: qtyNum,
+    price: priceNum,
+    supplier: supplier.trim(),
+    value: qtyNum * priceNum
+  });
+  
+  renderHistoryEdit();
+}
+
+function saveHistoryEdit(){
+  // Nettoyer les items vides
+  for(const cat in editingItems) {
+    editingItems[cat] = editingItems[cat].filter(it => it.qty > 0 || it.name.trim());
+    if(editingItems[cat].length === 0) delete editingItems[cat];
+  }
+  
+  // Recalculer le total
+  let total = 0;
+  for(const cat in editingItems) {
+    editingItems[cat].forEach(it => {
+      it.value = (it.qty || 0) * (it.price || 0);
+      total += it.value;
+    });
+  }
+  
+  if(!confirm('💾 Enregistrer les modifications de "' + hist[editingHistIdx].name + '" ?\n\nNouveau total: ' + total.toFixed(2) + '€')) return;
+  
+  // Mémoriser l'idx avant le reset
+  const savedIdx = editingHistIdx;
+  
+  // Appliquer à l'historique
+  hist[savedIdx].items = editingItems;
+  hist[savedIdx].total = total;
+  // Marquer comme modifié
+  hist[savedIdx].lastEdit = new Date().toISOString();
+  
+  saveHistory();
+  
+  // Reset
+  editingHistIdx = null;
+  editingItems = null;
+  
+  alert('✅ Inventaire mis à jour avec succès !');
+  // Retour à la vue détail
+  viewInventory(savedIdx);
+  renderHistory();
+}
+
+function cancelHistoryEdit(){
+  if(!confirm('❌ Annuler les modifications ?\n\nToutes tes modifs seront perdues.')) return;
+  const idx = editingHistIdx;
+  editingHistIdx = null;
+  editingItems = null;
+  viewInventory(idx);
 }
 
 function renameInventory(idx){
