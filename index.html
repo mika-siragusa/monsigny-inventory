@@ -114,6 +114,7 @@ button:hover { background: #303030; }
 <button onclick="toggleAdd()" style="background:#d4a853; color:#1a1000; font-weight:600">➕ Ajouter</button>
 <button onclick="resetInventory()" style="background:#ef4444; color:#fff; font-weight:600">🔄 Réinitialiser</button>
 <button id="totalBtn" style="background:#4ade80; color:#000; font-weight:600; flex:1">💰 TOTAL: 0.00€</button>
+<button onclick="saveDraft()" style="background:#a855f7; color:#fff; font-weight:600; flex:1; border-color:#a855f7">💼 Sauvegarder Brouillon</button>
 <button onclick="saveInventory()" style="background:#4ade80; color:#fff; font-weight:600; flex:1; border-color:#4ade80">✅ Enregistrer Inventaire</button>
 </div>
 </div>
@@ -208,7 +209,7 @@ const PROD = {
   "CONGELATEUR": [{name:"TARTELETTE SABLEE *96",p:47.95,u:"BOITE",sup:"METRO"},{name:"FOND DE TARTE SUCRE *96",p:47.95,u:"BOITE",sup:"METRO"},{name:"FOND DE TARTE SALEE *9",p:10.47,u:"BOITE",sup:"METRO"},{name:"BOUTEILLE TIRAMISU",p:8.76,u:"LITRE",sup:"SYSCO"},{name:"MOUSSE CHOCOLAT BRIQUE",p:9.13,u:"LITRE",sup:"SYSCO"},{name:"ECLAIR CHOCOLAT",p:1.012,u:"PIECE",sup:"CHARLES MARTIN"},{name:"BEIGNET DE COURGETTE",p:9.223,u:"KG",sup:"METRO"},{name:"BUCHE PRALINE",p:11.0,u:"PIECE",sup:"CHARLES MARTIN"},{name:"CHEESCAKE",p:14.2,u:"PIECE",sup:"SYSCO"},{name:"PATE FEUILLETE",p:11.0,u:"KG",sup:"CHARLES MARTIN"},{name:"FISH AND CHIPS",p:8.9,u:"KG",sup:"SYSCO"},{name:"FONDANT CHOCOLAT",p:1.76,u:"PIECE",sup:"GINEYS"},{name:"FRITES SURGELEES",p:1.34,u:"KG",sup:"SYSCO"},{name:"GLACE VANILLE",p:12.97,u:"LITRE",sup:"METRO"},{name:"HARICOT VERT",p:1.86,u:"KG",sup:"SYSCO"},{name:"MACARON ASSORTIS 924G",p:31.92,u:"BOITE",sup:"METRO"},{name:"MARRON ENTIER",p:11.1,u:"KG",sup:"SYSCO"},{name:"MINI MOELLEUX",p:0.78,u:"PIECE",sup:"SYSCO"},{name:"NOUGAT GLACE",p:17.88,u:"KG",sup:"METRO"},{name:"OIGNON EMINCE",p:3.09,u:"KG",sup:"GINEYS"},{name:"PETIT POIS",p:2.83,u:"KG",sup:"CHARLES MARTIN"},{name:"POIVRON GRILLE DUO",p:4.5,u:"SAC",sup:"GINEYS"},{name:"PONTHIER ANANAS",p:10.0,u:"KG",sup:"METRO"},{name:"PONTHIER CERISE",p:11.5,u:"KG",sup:"METRO"},{name:"PONTHIER CITRON",p:8.49,u:"KG",sup:"METRO"},{name:"PONTHIER FRAMBOISE",p:8.92,u:"KG",sup:"METRO"},{name:"PONTHIER GRENADE",p:18.0,u:"KG",sup:"METRO"},{name:"PONTHIER MANGUE",p:7.92,u:"KG",sup:"METRO"},{name:"PONTHIER POIRE",p:8.43,u:"KG",sup:"METRO"},{name:"PUREE PDT SURGELEE",p:2.41,u:"KG",sup:"SYSCO"},{name:"RATATOUILLE",p:3.8,u:"KG",sup:"SYSCO"},{name:"RAVIOLIS CHEVRE",p:10.65,u:"KG",sup:"SYSCO"},{name:"SCINTILLANT CHOCO CARAMEL",p:37.5,u:"PIECE",sup:"SYSCO"},{name:"TARTE AUX POIRES",p:9.8,u:"PIECE",sup:"SYSCO"},{name:"TARTE COCO",p:9.71,u:"PIECE",sup:"METRO"},{name:"TARTE MYRTILLE",p:13.0,u:"PIECE",sup:"GINEYS"},{name:"TARTE POMME FAMILLE",p:7.03,u:"PIECE",sup:"SYSCO"},{name:"TARTE POMMES CARAMEL",p:11.7,u:"PIECE",sup:"CHARLES MARTIN"},{name:"TARTE NORMANDE",p:5.93,u:"PIECE",sup:"GINEYS"},{name:"TARTE TROPEZIENNE",p:13.9,u:"PIECE",sup:"SYSCO"},{name:"TARTELETTE CITRON",p:1.49,u:"PIECE",sup:"GINEYS"},{name:"TIRAMISU",p:8.8,u:"KG",sup:"SYSCO"},{name:"TORTELINI MOZZA PESTO",p:5.5,u:"KG",sup:"SYSCO"},{name:"FEUILLE DE GENOISE",p:2.31,u:"PIECE",sup:"CHARLES MARTIN"},{name:"SALADE DE FRUITS",p:5.59,u:"KG",sup:"CHARLES MARTIN"},{name:"BUTTERNET CUBES",p:2.33,u:"KG",sup:"CHARLES MARTIN"},{name:"COULANT CHOCOLAT",p:1.04,u:"PIECE",sup:"GINEYS"},{name:"CREVETTE RED",p:13.46,u:"PIECE",sup:""},{name:"BLACK TIGER",p:13.29,u:"PIECE",sup:""},{name:"SAMOUSSA LEGUMES 2,7KG",p:27.0,u:"KG",sup:""},{name:"PAIN BUN BURGER",p:0.61,u:"PIECE",sup:""},{name:"TARTE BOURDALOUE",p:9.88,u:"PIECE",sup:""},{name:"BOIRON VERGER POIRE",p:12.99,u:"PIECE",sup:""},{name:"BOIRON VERGER FRAMBOISE",p:12.99,u:"PIECE",sup:""},{name:"BOIRON VERGER NOIX DE COCO",p:12.99,u:"PIECE",sup:""},{name:"FEUILLETE CHEVRE",p:41.93,u:"PIECE",sup:""}]
 };
 
-let loc='restaurant', usr='', st={}, hist=[];
+let loc='restaurant', usr='', st={}, hist=[], drafts=[];
 let currentFilter = 'all';
 let resumingFromId = null;
 const FOOD_CATS = ['FRUITS / LEGUMES', 'VIANDE / VOLAILLE', 'POISSON', 'BOF', 'EPICERIE', 'PATISSERIE', 'CONGELATEUR'];
@@ -222,6 +223,7 @@ function setFilter(f){
 }
 const SYNC_KEY = 'monsigny-';
 const HIST_KEY = 'monsigny-hist-';
+const DRAFT_KEY = 'monsigny-drafts-';
 
 function login(){
   const l = document.getElementById('loc').value;
@@ -236,6 +238,7 @@ function login(){
   document.getElementById('locbadge').textContent = l.toUpperCase();
   loadData();
   loadHistory();
+  loadDrafts();
 }
 
 function logout(){
@@ -277,6 +280,163 @@ function loadHistory(){
 
 function saveHistory(){
   localStorage.setItem(HIST_KEY + loc, JSON.stringify(hist));
+}
+
+function loadDrafts(){
+  const saved = localStorage.getItem(DRAFT_KEY + loc);
+  drafts = saved ? JSON.parse(saved) : [];
+}
+
+function saveDrafts(){
+  localStorage.setItem(DRAFT_KEY + loc, JSON.stringify(drafts));
+}
+
+// === SYSTÈME DE BROUILLONS ===
+let resumingFromDraftId = null;
+
+function saveDraft(){
+  // Vérifier qu'il y a des quantités saisies
+  let hasData = false;
+  for(const id in st) {
+    if(st[id] && st[id].q && st[id].q > 0) { hasData = true; break; }
+  }
+  if(!hasData) {
+    alert('⚠️ Aucune quantité saisie. Rien à sauvegarder en brouillon.');
+    return;
+  }
+  
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('fr-FR');
+  const timeStr = now.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'});
+  const defaultName = 'Brouillon ' + dateStr + ' ' + timeStr + ' - ' + (usr || 'Anonyme');
+  
+  // Si on est déjà en train de modifier un brouillon, proposer l'écrasement
+  let overwriteIdx = -1;
+  let suggestedName = defaultName;
+  if(resumingFromDraftId !== null) {
+    overwriteIdx = drafts.findIndex(d => d.id === resumingFromDraftId);
+    if(overwriteIdx !== -1) {
+      suggestedName = drafts[overwriteIdx].name;
+    }
+  }
+  
+  const name = prompt('💼 Nom du brouillon:', suggestedName);
+  if(name === null) return;
+  
+  // Comptage des produits saisis
+  let itemCount = 0;
+  let total = 0;
+  for(const id in st) {
+    if(st[id] && st[id].q > 0) {
+      itemCount++;
+      total += (st[id].q || 0) * (st[id].p || 0);
+    }
+  }
+  
+  const draft = {
+    id: overwriteIdx !== -1 ? drafts[overwriteIdx].id : Date.now(),
+    name: name.trim() || defaultName,
+    date: dateStr,
+    time: timeStr,
+    user: usr,
+    itemCount: itemCount,
+    total: total,
+    state: JSON.parse(JSON.stringify(st)) // copie profonde
+  };
+  
+  if(overwriteIdx !== -1) {
+    drafts[overwriteIdx] = draft;
+    alert('✅ Brouillon "' + draft.name + '" mis à jour.');
+  } else {
+    drafts.unshift(draft);
+    alert('✅ Brouillon "' + draft.name + '" sauvegardé.\n\nTu peux le retrouver dans l\'onglet Historique → section Brouillons.');
+  }
+  
+  saveDrafts();
+}
+
+function resumeDraft(idx){
+  const draft = drafts[idx];
+  
+  // Vérifier s'il y a des données en cours
+  let hasUnsavedData = false;
+  for(const id in st) {
+    if(st[id] && st[id].q && st[id].q > 0) { hasUnsavedData = true; break; }
+  }
+  
+  if(hasUnsavedData) {
+    if(!confirm('⚠️ Tu as des données en cours qui ne sont pas sauvegardées.\n\nReprendre "' + draft.name + '" va les remplacer.\n\nContinuer ?')) return;
+  } else {
+    if(!confirm('💼 Reprendre le brouillon "' + draft.name + '" ?')) return;
+  }
+  
+  // Charger le brouillon
+  st = JSON.parse(JSON.stringify(draft.state));
+  resumingFromDraftId = draft.id;
+  resumingFromId = null; // si on était en mode reprise d'inventaire fini, on annule
+  saveData();
+  
+  switchTab('inventory');
+  render();
+  
+  // Bannière violette
+  showDraftBanner(draft.name);
+  
+  alert('✅ Brouillon "' + draft.name + '" repris.\n\nContinue tes modifications. Tu peux:\n• 💼 Sauvegarder le brouillon (mise à jour)\n• ✅ Enregistrer Inventaire (finaliser dans l\'historique)');
+}
+
+function showDraftBanner(name){
+  const existing = document.getElementById('resumeBanner');
+  if(existing) existing.remove();
+  const oldDraftBanner = document.getElementById('draftBanner');
+  if(oldDraftBanner) oldDraftBanner.remove();
+  
+  const banner = document.createElement('div');
+  banner.id = 'draftBanner';
+  banner.style.cssText = 'background:#a855f7; color:#fff; padding:10px 20px; display:flex; justify-content:space-between; align-items:center; gap:10px; font-size:13px; font-weight:600;';
+  banner.innerHTML = '💼 Brouillon en cours : ' + name + ' <button onclick="cancelDraftResume()" style="background:#000; color:#a855f7; border:none; padding:6px 10px; border-radius:4px; cursor:pointer; font-size:11px; font-weight:600;">❌ Quitter le brouillon</button>';
+  
+  const invTab = document.getElementById('inventoryTab');
+  invTab.insertBefore(banner, invTab.firstChild);
+}
+
+function cancelDraftResume(){
+  if(!confirm('Quitter ce brouillon ?\n\nTes modifications restent dans l\'inventaire en cours. Le brouillon original n\'est PAS supprimé.')) return;
+  resumingFromDraftId = null;
+  const banner = document.getElementById('draftBanner');
+  if(banner) banner.remove();
+}
+
+function deleteDraft(idx){
+  const draft = drafts[idx];
+  if(!confirm('🗑️ Supprimer le brouillon "' + draft.name + '" ?')) return;
+  drafts.splice(idx, 1);
+  saveDrafts();
+  renderHistory();
+}
+
+function renameDraft(idx){
+  const draft = drafts[idx];
+  const newName = prompt('✏️ Nouveau nom:', draft.name);
+  if(newName && newName.trim()) {
+    drafts[idx].name = newName.trim();
+    saveDrafts();
+    renderHistory();
+  }
+}
+
+function exportDraft(idx){
+  const draft = drafts[idx];
+  const data = {
+    type: 'draft',
+    loc: loc,
+    draft: draft
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'monsigny-' + loc + '-brouillon-' + draft.name.replace(/[^a-z0-9]/gi, '_') + '.json';
+  a.click();
 }
 
 function saveInventory(){
@@ -353,6 +513,20 @@ function saveInventory(){
   const banner = document.getElementById('resumeBanner');
   if(banner) banner.remove();
   
+  // Si on était sur un brouillon, proposer de le supprimer maintenant que l'inventaire est finalisé
+  if(resumingFromDraftId !== null) {
+    const draftIdx = drafts.findIndex(d => d.id === resumingFromDraftId);
+    if(draftIdx !== -1) {
+      if(confirm('💼 Tu as finalisé le brouillon "' + drafts[draftIdx].name + '".\n\n✅ OK = supprimer ce brouillon (recommandé)\n❌ Annuler = le garder')) {
+        drafts.splice(draftIdx, 1);
+        saveDrafts();
+      }
+    }
+    resumingFromDraftId = null;
+    const draftBanner = document.getElementById('draftBanner');
+    if(draftBanner) draftBanner.remove();
+  }
+  
   saveHistory();
   
   // Auto-export JSON
@@ -365,7 +539,32 @@ function saveInventory(){
 }
 
 function renderHistory(){
-  let h = '<h3 style="color:#d4a853; margin-bottom:20px;">📜 Historique des inventaires</h3>';
+  let h = '';
+  
+  // === SECTION BROUILLONS ===
+  if(drafts && drafts.length > 0) {
+    h += '<div style="margin-bottom:25px; padding:15px; background:rgba(168,85,247,0.1); border:1px solid #a855f7; border-radius:8px;">';
+    h += '<h3 style="color:#a855f7; margin-bottom:15px;">💼 Brouillons en cours (' + drafts.length + ')</h3>';
+    drafts.forEach((draft, i) => {
+      h += `<div style="background:#242424; padding:12px; margin:8px 0; border-radius:4px; border-left:3px solid #a855f7;">
+        <div style="display:flex; justify-content:space-between; align-items:start; gap:10px;">
+          <div style="flex:1;">
+            <div style="color:#a855f7; font-weight:600;">${draft.name}</div>
+            <div style="color:#808080; font-size:12px; margin-top:4px;">📅 ${draft.date} ${draft.time} • 👤 ${draft.user || '—'} • ${draft.itemCount} produits • 💰 ${(draft.total || 0).toFixed(2)}€</div>
+          </div>
+          <div style="display:flex; gap:4px; flex-wrap:wrap;">
+            <button onclick="resumeDraft(${i})" style="background:#a855f7; color:#fff; border:none; padding:6px 10px; border-radius:4px; cursor:pointer; font-size:11px; font-weight:600;">▶️ Reprendre</button>
+            <button onclick="renameDraft(${i})" style="background:#5b9cf6; color:#fff; border:none; padding:6px 10px; border-radius:4px; cursor:pointer; font-size:11px;">✏️</button>
+            <button onclick="exportDraft(${i})" style="background:#d4a853; color:#1a1000; border:none; padding:6px 10px; border-radius:4px; cursor:pointer; font-size:11px;">📤</button>
+            <button onclick="deleteDraft(${i})" style="background:#ef4444; color:#fff; border:none; padding:6px 10px; border-radius:4px; cursor:pointer; font-size:11px;">🗑️</button>
+          </div>
+        </div>
+      </div>`;
+    });
+    h += '</div>';
+  }
+  
+  h += '<h3 style="color:#d4a853; margin-bottom:20px;">📜 Historique des inventaires</h3>';
   
   if(!hist.length) {
     h += '<div style="color:#808080;">Aucun inventaire enregistré</div>';
@@ -876,6 +1075,31 @@ function imp(e){
   r.onload = (ev) => {
     try {
       const d = JSON.parse(ev.target.result);
+      
+      // Détecter si c'est un brouillon
+      if(d.type === 'draft' && d.draft) {
+        const fileLoc = d.loc || loc;
+        if(fileLoc !== loc) {
+          if(!confirm('⚠️ Ce brouillon vient du lieu "' + fileLoc.toUpperCase() + '" alors que tu es sur "' + loc.toUpperCase() + '".\n\nL\'importer quand même ?')) return;
+        }
+        // Charger la liste actuelle des brouillons pour ce lieu
+        const existingDrafts = JSON.parse(localStorage.getItem(DRAFT_KEY + fileLoc) || '[]');
+        // Éviter les doublons par id
+        const existIdx = existingDrafts.findIndex(x => x.id === d.draft.id);
+        if(existIdx !== -1) {
+          if(!confirm('⚠️ Un brouillon avec le même ID existe déjà ("' + existingDrafts[existIdx].name + '").\n\nÉcraser ?')) return;
+          existingDrafts[existIdx] = d.draft;
+        } else {
+          existingDrafts.unshift(d.draft);
+        }
+        localStorage.setItem(DRAFT_KEY + fileLoc, JSON.stringify(existingDrafts));
+        if(loc === fileLoc) loadDrafts();
+        alert('✅ Brouillon "' + d.draft.name + '" importé!\n\nVa dans l\'onglet Historique pour le retrouver.');
+        if(document.getElementById('historyTab').style.display !== 'none') renderHistory();
+        document.getElementById('fi').value = '';
+        return;
+      }
+      
       const fileLoc = d.loc || loc;
       const data = d.inv || d.inventory || d;
       
