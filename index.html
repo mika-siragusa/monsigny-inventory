@@ -10,6 +10,9 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%230f0f0f' width='192' height='192'/><text x='96' y='120' font-size='80' text-anchor='middle' fill='%23d4a853' font-family='Arial' font-weight='bold'>📦</text></svg>">
 <title>Inventaire Monsigny</title>
+<!-- Firebase SDK (version compat pour page unique) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { background: #0f0f0f; color: #e8e8e8; font-family: 'DM Sans', sans-serif; height: 100vh; }
@@ -24,7 +27,7 @@ body { background: #0f0f0f; color: #e8e8e8; font-family: 'DM Sans', sans-serif; 
 .search-inp { width: 100%; background: #0f0f0f; border: 1px solid #242424; color: #e8e8e8; padding: 10px 12px; border-radius: 4px; }
 .content { flex: 1; overflow-y: scroll; padding: 12px 20px 140px; }
 .section { margin: 15px 0 2px; padding: 10px 15px; background: #1a1a1a; border: 1px solid #303030; border-radius: 6px; font-weight: 600; color: #d4a853; font-size: 12px; }
-.product { background: #1a1a1a; border: 1px solid #303030; border-radius: 4px; padding: 12px; margin: 8px 0; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1.2fr 40px 40px 40px; gap: 10px; align-items: center; }
+.product { background: #1a1a1a; border: 1px solid #303030; border-radius: 4px; padding: 12px; margin: 8px 0; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1.2fr 36px 36px 36px 36px; gap: 8px; align-items: center; }
 .product-name { font-size: 13px; font-weight: 500; }
 .product-unit { font-size: 11px; color: #808080; }
 input[type="text"], select { background: #0f0f0f; border: 1px solid #242424; color: #e8e8e8; padding: 8px; border-radius: 4px; font-size: 13px; width: 100%; }
@@ -77,6 +80,7 @@ button:hover { background: #303030; }
 <div class="header">
 <div class="title">📦 Inventaire Monsigny</div>
 <div style="display:flex; gap:15px; align-items:center;">
+<span class="badge" id="syncBadge" style="background:#666;">⏳ Connexion...</span>
 <span class="badge" id="locbadge">RESTAURANT</span>
 <button onclick="logout()" style="padding:6px 12px; font-size:11px;">Quitter</button>
 </div>
@@ -239,6 +243,10 @@ function login(){
   loadData();
   loadHistory();
   loadDrafts();
+  // Synchronisation Firebase pour ce lieu
+  if(fbReady) {
+    listenHistory();
+  }
 }
 
 function logout(){
@@ -939,10 +947,10 @@ function render(){
       const id = c + ':' + p.name;
       const d = st[id] || {};
       const q = d.q || 0;
-      const pr = d.p || p.p;
+      const pr = (d.p && d.p > 0) ? d.p : p.p;
       const sup = d.sup || '';
       const val = q * pr;
-      h += '<div class="product"><div><div class="product-name">'+p.name+'</div><div class="product-unit">'+p.u+'</div></div><input type="text" value="'+pr.toFixed(2)+'" onchange="setPrice(\''+id+'\',this.value)" style="width:80px; text-align:right"/><input type="text" value="'+q+'" onchange="setQty(\''+id+'\',this.value)" style="width:80px"/><div style="text-align:right">'+val.toFixed(2)+'€</div><input type="text" value="'+sup+'" onchange="setSupplier(\''+id+'\',this.value)" placeholder="Fournisseur" style="width:100px"/><button onclick="startMove(\''+c+'\',\''+p.name+'\')" style="background:#5b9cf6; color:#fff; border:none; cursor:pointer; padding:6px 8px; border-radius:4px; font-size:11px;">↔️</button><button onclick="editProduct(\''+c+'\',\''+p.name+'\')" style="background:#d4a853; color:#1a1000; border:none; cursor:pointer; padding:6px 8px; border-radius:4px; font-size:11px; margin-left:4px;">✏️</button></div>';
+      h += '<div class="product"><div><div class="product-name">'+p.name+'</div><div class="product-unit">'+p.u+'</div></div><input type="text" value="'+pr.toFixed(2)+'" onchange="setPrice(\''+id+'\',this.value)" style="width:80px; text-align:right"/><input type="text" value="'+q+'" onchange="setQty(\''+id+'\',this.value)" style="width:80px"/><div style="text-align:right">'+val.toFixed(2)+'€</div><input type="text" value="'+sup+'" onchange="setSupplier(\''+id+'\',this.value)" placeholder="Fournisseur" style="width:100px"/><button onclick="startMove(\''+c+'\',\''+p.name+'\')" style="background:#5b9cf6; color:#fff; border:none; cursor:pointer; padding:6px 8px; border-radius:4px; font-size:11px;">↔️</button><button onclick="editProduct(\''+c+'\',\''+p.name+'\')" style="background:#d4a853; color:#1a1000; border:none; cursor:pointer; padding:6px 8px; border-radius:4px; font-size:11px; margin-left:4px;">✏️</button><button onclick="deleteProduct(\''+c+'\',\''+p.name+'\')" style="background:#ef4444; color:#fff; border:none; cursor:pointer; padding:6px 8px; border-radius:4px; font-size:11px; margin-left:4px;">🗑️</button></div>';
     });
   }
   document.getElementById('cont').innerHTML = h;
@@ -956,7 +964,7 @@ function calculateTotal(){
       const id = c + ':' + p.name;
       const d = st[id] || {};
       const q = d.q || 0;
-      const pr = d.p || p.p;
+      const pr = (d.p && d.p > 0) ? d.p : p.p;
       total += q * pr;
     });
   }
@@ -972,10 +980,27 @@ function resetInventory(){
   }
 }
 
+function findProductPrice(id){
+  // Retrouve le prix de référence d'un produit depuis PROD
+  const sepIdx = id.indexOf(':');
+  const cat = id.substring(0, sepIdx);
+  const name = id.substring(sepIdx + 1);
+  if(PROD[cat]){
+    const prod = PROD[cat].find(p => p.name === name);
+    if(prod) return prod.p;
+  }
+  return 0;
+}
+
 function setQty(id, val){
   const q = parseFloat(val.replace(',','.')) || 0;
   st[id] = st[id] || {};
   st[id].q = q;
+  // Si aucun prix n'est encore défini pour ce produit, on prend celui de la base
+  if(st[id].p === undefined || st[id].p === null || st[id].p === 0){
+    const refPrice = findProductPrice(id);
+    if(refPrice > 0) st[id].p = refPrice;
+  }
   saveData();
   render();
 }
@@ -1009,6 +1034,7 @@ function addProd(){
   
   if(!PROD[cat]) PROD[cat] = [];
   PROD[cat].push({name: name, p: price, u: unit, sup: ''});
+  syncProducts();
   
   document.getElementById('addCat').value = '';
   document.getElementById('addName').value = '';
@@ -1047,6 +1073,7 @@ function confirmMove(){
       delete st[oldId];
       saveData();
     }
+    syncProducts();
     
     cancelMove();
     alert('✅ Produit déplacé!');
@@ -1423,10 +1450,31 @@ function editProduct(cat, name){
   st[finalId].sup = newSup.trim();
   
   // Sauvegarder la liste des produits modifiés
-  localStorage.setItem('monsigny-prod-overrides', JSON.stringify(PROD));
+  syncProducts();
   saveData();
   render();
   alert('✅ Produit modifié!');
+}
+
+function deleteProduct(cat, name){
+  if(!PROD[cat]) return;
+  const idx = PROD[cat].findIndex(p => p.name === name);
+  if(idx === -1) return;
+  
+  if(!confirm('🗑️ Supprimer définitivement "' + name + '" de la liste ?\n\n⚠️ Ce produit disparaîtra de l\'inventaire pour tout le monde.\nLes inventaires déjà enregistrés dans l\'historique ne sont PAS affectés.')) return;
+  
+  // Retirer le produit de la catégorie
+  PROD[cat].splice(idx, 1);
+  
+  // Supprimer aussi les données saisies pour ce produit
+  const id = cat + ':' + name;
+  if(st[id]) delete st[id];
+  
+  // Sauvegarder l'override
+  syncProducts();
+  saveData();
+  render();
+  alert('✅ "' + name + '" supprimé de la liste.');
 }
 
 // Charger les overrides de produits au démarrage
@@ -1440,7 +1488,139 @@ if(overrides) {
   } catch(e) { console.error('Erreur overrides:', e); }
 }
 
+// ============================================================
+// ============== SYNCHRONISATION FIREBASE ====================
+// ============================================================
+const firebaseConfig = {
+  apiKey: "AIzaSyCYxt3tOTM12zK3RQyAkFeOqg6fkNvgpIU",
+  authDomain: "monsigny-inventory.firebaseapp.com",
+  projectId: "monsigny-inventory",
+  storageBucket: "monsigny-inventory.firebasestorage.app",
+  messagingSenderId: "217504789472",
+  appId: "1:217504789472:web:e92ab8f68b5e05f1767185"
+};
+
+let db = null;
+let fbReady = false;
+let fbProductsUnsub = null;
+let fbHistoryUnsub = null;
+
+function updateSyncBadge(){
+  const badge = document.getElementById('syncBadge');
+  if(!badge) return;
+  if(fbReady) {
+    badge.textContent = '🟢 Synchronisé';
+    badge.style.background = '#16a34a';
+    badge.style.color = '#fff';
+  } else {
+    badge.textContent = '🔴 Hors-ligne';
+    badge.style.background = '#999';
+    badge.style.color = '#fff';
+  }
+}
+
+function initFirebase(){
+  try {
+    if(typeof firebase === 'undefined') {
+      console.warn('Firebase SDK non chargé - mode hors-ligne');
+      fbReady = false;
+      updateSyncBadge();
+      return;
+    }
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    fbReady = true;
+    console.log('✅ Firebase connecté');
+    updateSyncBadge();
+  } catch(e) {
+    console.error('Erreur init Firebase:', e);
+    fbReady = false;
+    updateSyncBadge();
+  }
+}
+initFirebase();
+
+// ---- PRODUITS (liste partagée) ----
+function pushProductsToFirebase(){
+  if(!fbReady) return;
+  db.collection('shared').doc('products').set({
+    data: JSON.stringify(PROD),
+    updatedAt: Date.now(),
+    updatedBy: usr || 'inconnu'
+  }).catch(e => console.error('Erreur push produits:', e));
+}
+
+function listenProducts(){
+  if(!fbReady) return;
+  if(fbProductsUnsub) fbProductsUnsub();
+  fbProductsUnsub = db.collection('shared').doc('products').onSnapshot(doc => {
+    if(doc.exists && doc.data().data) {
+      // Ne pas écraser si c'est nous qui venons de pousser (évite boucle)
+      try {
+        const remotePROD = JSON.parse(doc.data().data);
+        // Fusionner: on remplace PROD par la version distante
+        for(const cat in remotePROD) {
+          PROD[cat] = remotePROD[cat];
+        }
+        // Garder en cache local aussi
+        localStorage.setItem('monsigny-prod-overrides', JSON.stringify(PROD));
+        // Rafraîchir l'affichage si on est connecté
+        if(usr && document.getElementById('app').style.display !== 'none') {
+          render();
+        }
+      } catch(e) { console.error('Erreur lecture produits distants:', e); }
+    } else {
+      // Pas encore de produits sur Firebase → on pousse notre version locale
+      pushProductsToFirebase();
+    }
+  }, e => console.error('Erreur listen produits:', e));
+}
+
+// ---- HISTORIQUE (partagé par lieu) ----
+function pushHistoryToFirebase(){
+  if(!fbReady || !loc) return;
+  db.collection('history').doc(loc).set({
+    data: JSON.stringify(hist),
+    updatedAt: Date.now()
+  }).catch(e => console.error('Erreur push historique:', e));
+}
+
+function listenHistory(){
+  if(!fbReady || !loc) return;
+  if(fbHistoryUnsub) fbHistoryUnsub();
+  fbHistoryUnsub = db.collection('history').doc(loc).onSnapshot(doc => {
+    if(doc.exists && doc.data().data) {
+      try {
+        const remoteHist = JSON.parse(doc.data().data);
+        hist = remoteHist;
+        localStorage.setItem(HIST_KEY + loc, JSON.stringify(hist));
+        if(document.getElementById('historyTab').style.display !== 'none') {
+          renderHistory();
+        }
+      } catch(e) { console.error('Erreur lecture historique distant:', e); }
+    }
+  }, e => console.error('Erreur listen historique:', e));
+}
+
+// ---- Hooks: on enrichit les fonctions de sauvegarde existantes ----
+const _origSaveHistory = saveHistory;
+saveHistory = function(){
+  _origSaveHistory();
+  pushHistoryToFirebase();
+};
+
+const _origPushProducts = function(){ localStorage.setItem('monsigny-prod-overrides', JSON.stringify(PROD)); };
+// Wrapper pour quand on modifie les produits
+function syncProducts(){
+  localStorage.setItem('monsigny-prod-overrides', JSON.stringify(PROD));
+  pushProductsToFirebase();
+}
+
+// Démarrer les listeners produits dès le chargement
+listenProducts();
+
 </script>
+
 
 </body>
 </html>
